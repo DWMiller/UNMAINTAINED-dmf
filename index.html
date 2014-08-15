@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>JS Framework Example</title>
+    <link rel="icon" type="image/png" href="assets/images/favicon.ico">
+    <!--[if lt IE 9]>
+        <script src="js/shiv.min.js"></script>
+        <![endif]-->
+    <link rel="stylesheet" href="css/production.min.css">
+</head>
+
+<body>
+
+    <div id="main-container">
+
+        <div id="page-auth" class="page hidden">
+            <form id="form-login" class="page-module">
+                <fieldset>
+                    <legend>Login</legend>
+                    <p id="form-login-msg" class="center"></p>
+
+                    <label for="form-login-username">Username
+                        <input name="username" id="form-login-username" type="text" value="David">
+                    </label>
+                    <label for="form-login-password">Password
+                        <input name="password" id="form-login-password" type="password" value="12345678">
+                    </label>
+                    <label for="form-login-password_mask">Hide Password?
+                        <input id="form-login-password_mask" checked type="checkbox">
+                    </label>
+                    <button id="form-login-login">Login</button>
+                </fieldset>
+            </form>
+
+            <form id="form-register" class="page-module">
+                <fieldset>
+                    <legend>Register</legend>
+
+                    <label for="form-register-username">Username
+                        <input name="username" id="form-register-username" type="text">
+                    </label>
+
+                    <label for="form-register-password">Password
+                        <input name="password" id="form-register-password" type="password">
+                    </label>
+
+                    <label for="form-register-password_mask">Hide Password?
+                        <input id="form-register-password_mask" checked type="checkbox">
+                    </label>
+
+                    <label for="form-register-fname">First Name
+                        <input name="fname" id="form-register-fname" type="text">
+                    </label>
+
+                    <label for="form-register-lname">Last Name
+                        <input name="lname" id="form-register-lname" type="text">
+                    </label>
+
+                    <label for="form-register-email">Email
+                        <input name="email" id="form-register-email" type="email">
+                    </label>
+
+                    <button id="form-register-register">Register</button>
+                </fieldset>
+            </form>
+
+            <form id="form-logout" class="page-module hidden">
+                <button id="form-logout-logout">Logout</button>
+            </form>
+
+        </div>
+
+    </div>
+    <script type="text/javascript" src="js/production.min.js"></script>
+    <script>
+    CORE.activate();
+    </script>
+</body>
+
+</html>

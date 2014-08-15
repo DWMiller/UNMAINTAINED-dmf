@@ -1,0 +1,13 @@
+@import 'vars';
+@media all and (min-width: 32em) {
+
+	#main-container {
+		padding:$pageMargin;
+	}
+
+	form {
+		vertical-align: top;
+		display: inline-block;
+		width: 50%;
+	}
+}
