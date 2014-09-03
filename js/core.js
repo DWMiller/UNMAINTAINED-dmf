@@ -43,10 +43,19 @@ var CORE = function() {
                 this.log(2, "Module '" + moduleID + "' Registration : FAILED : one or more arguments are of incorrect type");
             }
         },
-        startModule: function(moduleID) {
+        getModule: function(moduleID) {
             var mod = moduleData[moduleID];
             if (mod) {
-                mod.instance = mod.create(this);
+                return = mod.create(this);
+            } else {
+                return false;
+            }
+        },        
+        startModule: function(moduleID) {
+            var mod = moduleData[moduleID];
+
+            if (mod) {
+                mod.instance = this.getModule(moduleID);
                 mod.instance.initialize(Sandbox);
                 this.log(1, "Start Module '" + moduleID + "': SUCCESS");
             }
