@@ -25,9 +25,12 @@ var Sandbox = {
                 }
             },
             ignore: function(evts) {
-                if (core.is_arr) {
-                    core.removeEvents(evts, moduleID);
+                if(!core.is_arr(evts)) {
+                   var e = evts;
+                   evts = [e]; 
                 }
+
+                core.removeEvents(evts, moduleID);
             },
             hide: function(element) {
                 if (typeof element === 'undefined') {

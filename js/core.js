@@ -46,7 +46,7 @@ var CORE = function() {
         getModule: function(moduleID) {
             var mod = moduleData[moduleID];
             if (mod) {
-                return = mod.create(this);
+                return mod.create(this);
             } else {
                 return false;
             }
@@ -110,7 +110,7 @@ var CORE = function() {
             }
         },
         removeEvents: function(evts, mod) {
-            if (this.is_obj(evts) && mod && (mod = moduleData[mod]) && mod.events) {
+            if (mod && (mod = moduleData[mod]) && mod.events) {
                 delete mod.events;
             }
         },
