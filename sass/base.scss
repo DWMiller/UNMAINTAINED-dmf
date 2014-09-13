@@ -1,14 +1,6 @@
 @import '_normalize';
 @import '_vars';
 
-.page {
-	border: 2px dotted red;
-}
-.page-module {
-	background-color:rgba(184, 231, 255, 0.3);
-	border: 2px dotted yellow;
-}
-
 html {
     -webkit-box-sizing: border-box; 
     -moz-box-sizing:    border-box; 
@@ -30,48 +22,6 @@ html, body, #main-container {
 	overflow:hidden;
 	overflow-y:scroll;
 }
-
-legend {
-	font-weight:bold;
-}
-
-label, input[type="text"],input[type="password"],input[type="email"] {
-	display:block;
-	font-size: 1.25rem;
-	width:100%;
-}
-
-input[type="text"],input[type="password"],input[type="email"] {
-	text-indent: 1em;
-	border-radius:10px;
-}
-
-button {
-	font-variant: small-caps;
-	background-color: #FFF;
-	color:black;
-	padding: 0.25rem 0.5rem;
-	margin: 0.5rem 0;
-	border-radius:10%;
-}
-
-.center {
-	text-align: center;
-}
-
-.error {
-	color: $errorRed;
-}
-
-.hidden {
-	display: none;
-	visibility:hidden;
-}
-
-.visible {
-	visibility: inherit;
-}
-
 
 @import '_mediumSize';
 @import '_largeSize';
