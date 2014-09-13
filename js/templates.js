@@ -1,9 +1,8 @@
 CORE.Templates = function() {
 	return {
-		'input-answer': function(data) {
+		'exampleTemplate': function(data) {
 			var input = document.createElement('input');
 			input.type = 'text';
-			input.className = 'input-answer';
 			return input;
 		}
 	}

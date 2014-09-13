@@ -1,3 +1,9 @@
+CORE.extendConfig({
+	server: {
+		endpoint: 'http://127.0.0.1:8080/',
+	}
+});
+
 CORE.createModule('server', function(c) {
 	'use strict';
 
