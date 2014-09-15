@@ -9,8 +9,6 @@ CORE.createModule('demo', function(c) {
 
     var listeners = {
         'wont-happen': demoFunction,
-        'login.failure': loginFailure,
-        'register.success': login
     };
 
     function p_initialize(sb) {
@@ -41,8 +39,13 @@ CORE.createModule('demo', function(c) {
 
     function bindEvents() {
         scope.listen(listeners);
-        scope.addEvent(elements.first, 'click', demoFunction(1));
-        scope.addEvent(elements.second, 'click', demoFunction(2));
+        scope.addEvent(elements.first, 'click', function() {
+            demoFunction(1);
+        });
+            
+        scope.addEvent(elements.second, 'click', function() {
+            demoFunction(2);
+        });
     }
 
     function unbindEvents() {

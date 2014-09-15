@@ -14,12 +14,13 @@ CORE.createModule('controller', function(c) {
         bindEvents();
 
         c.startModule('layout');
+        c.startModule('demo');
 
         scope.notify({
             type: 'layout-update',
             data: {
                 type: 'show',
-                element: scope.find('#page-auth')
+                element: scope.find('#module-demo')
             }
         });
     }
