@@ -5,8 +5,7 @@
  * @type {Object}
  */
 CORE.extendConfig({
-	example: {
-		setting1: 'test',
-		setting2: 11	
-	}
+	'system-server': {
+		endpoint: 'http://127.0.0.1:8080/',
+	}	
 });

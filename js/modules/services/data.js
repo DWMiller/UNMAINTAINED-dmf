@@ -1,8 +1,8 @@
-CORE.createModule('data', function(c) {
+CORE.createModule('system-data', function(c) {
     'use strict';
 
     var p_properties = {
-        id: 'data'
+        id: 'system-data'
     };
 
     var scope;
@@ -31,6 +31,12 @@ CORE.createModule('data', function(c) {
 
     function setData(content) {
         c.extend(c.data, content);
+
+        //Maybe work out a way to customize event based on data updated
+        scope.notify({
+            type: 'data-update',
+            data: content
+        });
     }
 
     function clearData(field) {

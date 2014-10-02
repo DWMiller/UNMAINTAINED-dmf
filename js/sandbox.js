@@ -1,4 +1,4 @@
-var Sandbox = {
+CORE.Sandbox = {
     create: function(core, moduleID, module_selector) {
         var CONTAINER = document.getElementById(module_selector) || document.getElementById('main-container');
         return {
@@ -25,9 +25,9 @@ var Sandbox = {
                 }
             },
             ignore: function(evts) {
-                if(!core.is_arr(evts)) {
-                   var e = evts;
-                   evts = [e]; 
+                if (!core.is_arr(evts)) {
+                    var e = evts;
+                    evts = [e];
                 }
 
                 core.removeEvents(evts, moduleID);
@@ -37,26 +37,16 @@ var Sandbox = {
                     element = CONTAINER;
                 }
 
-                this.notify({
-                    type: 'layout-update',
-                    data: {
-                        type: 'hide',
-                        element: element
-                    }
-                });
+                core.dom.removeClass(element, 'visible');
+                core.dom.addClass(element, 'hidden');
             },
             show: function(element) {
                 if (typeof element === 'undefined') {
                     element = CONTAINER;
                 }
 
-                this.notify({
-                    type: 'layout-update',
-                    data: {
-                        type: 'show',
-                        element: element
-                    }
-                });
+                core.dom.addClass(element, 'visible');
+                core.dom.removeClass(element, 'hidden');
             }
         };
     }

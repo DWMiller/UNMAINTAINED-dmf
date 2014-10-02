@@ -1,8 +1,8 @@
-CORE.createModule('controller', function(c) {
+CORE.createModule('system-controller', function(c) {
     'use strict';
 
     var p_properties = {
-        id: 'controller'
+        id: 'system-controller'
     };
 
     var scope;
@@ -11,23 +11,16 @@ CORE.createModule('controller', function(c) {
 
     function p_initialize(sb) {
         scope = sb.create(c, p_properties.id);
+        c.startModule('system-server');
+        c.startModule('system-data');
+
         bindEvents();
-
-        c.startModule('layout');
-        c.startModule('demo');
-
-        scope.notify({
-            type: 'layout-update',
-            data: {
-                type: 'show',
-                element: scope.find('#module-demo')
-            }
-        });
     }
 
     function p_destroy() {
         unbindEvents();
-        c.stopAllModules();
+        c.stopModule('system-server');
+        c.stopModule('system-data');
     }
 
     function bindEvents() {

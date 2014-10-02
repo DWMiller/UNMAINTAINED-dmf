@@ -10,9 +10,10 @@ var CORE = function() {
          * Triggers starter logic for all game modules
          * @return {[type]} [description]
          */
-        activate: function() {
+        activate: function(starter) {
             console.time('startup');
-            this.startModule('controller');
+            this.startModule('system-controller');
+            this.startModule(starter);
             console.timeEnd('startup');
         },
         debug: function(on) {
@@ -56,7 +57,7 @@ var CORE = function() {
 
             if (mod) {
                 mod.instance = this.getModule(moduleID);
-                mod.instance.initialize(Sandbox);
+                mod.instance.initialize(this.Sandbox);
                 this.log(1, "Start Module '" + moduleID + "': SUCCESS");
             }
         },
