@@ -4,6 +4,7 @@ var CORE = function() {
     var debug = true;
 
     return {
+        modules: moduleData,
         config: {},
         data: {},
         /**
@@ -11,10 +12,8 @@ var CORE = function() {
          * @return {[type]} [description]
          */
         activate: function(starter) {
-            console.time('startup');
             this.startModule('system-controller');
             this.startModule(starter);
-            console.timeEnd('startup');
         },
         debug: function(on) {
             if (on !== 'undefined') {
@@ -99,6 +98,7 @@ var CORE = function() {
             }
         },
         triggerEvent: function(evt) {
+            console.log(evt);
             var mod;
 
             for (mod in moduleData) {
@@ -127,6 +127,15 @@ var CORE = function() {
                 };
             }
         },
+        changeLanguage: function(lang) {
+            var event = {
+                type: 'language-change',
+                data: {
+                    language: lang
+                }
+            };
+            this.triggerEvent(event);
+        },        
         dom: {
             find: function(selector, context) {
                 var ret = {};

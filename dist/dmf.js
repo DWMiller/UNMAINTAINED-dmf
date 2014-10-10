@@ -4,6 +4,7 @@ var CORE = function() {
     var debug = true;
 
     return {
+        modules: moduleData,
         config: {},
         data: {},
         /**
@@ -11,10 +12,8 @@ var CORE = function() {
          * @return {[type]} [description]
          */
         activate: function(starter) {
-            console.time('startup');
             this.startModule('system-controller');
             this.startModule(starter);
-            console.timeEnd('startup');
         },
         debug: function(on) {
             if (on !== 'undefined') {
@@ -127,6 +126,15 @@ var CORE = function() {
                 };
             }
         },
+        changeLanguage: function(lang) {
+            var event = {
+                type: 'language-change',
+                data: {
+                    language: lang
+                }
+            };
+            this.triggerEvent(event);
+        },        
         dom: {
             find: function(selector, context) {
                 var ret = {};
@@ -247,6 +255,11 @@ CORE.Sandbox = {
 CORE.extendConfig({
 	'system-server': {
 		endpoint: 'http://127.0.0.1:8080/',
+	},	
+	'system-localize': {
+		default_language: 'en',
+		path:'js/localization/',
+		ext: '.lang.json'		
 	}	
 });
 CORE.createModule('system-controller', function(c) {
@@ -264,6 +277,7 @@ CORE.createModule('system-controller', function(c) {
         scope = sb.create(c, p_properties.id);
         c.startModule('system-server');
         c.startModule('system-data');
+        c.startModule('system-localize');
 
         bindEvents();
     }
@@ -272,6 +286,7 @@ CORE.createModule('system-controller', function(c) {
         unbindEvents();
         c.stopModule('system-server');
         c.stopModule('system-data');
+        c.stopModule('system-localize');
     }
 
     function bindEvents() {
@@ -347,6 +362,130 @@ CORE.createModule('system-data', function(c) {
         destroy: p_destroy,
     };
 
+});
+
+CORE.createModule('system-localize', function(c) {
+    'use strict';
+
+    var p_properties = {
+        id: 'system-localize'
+    };
+
+    var scope, elements, config;
+
+    var listeners = {
+        'language-change': changeLanguage
+    };
+
+    var p_languages = {}; // will contain lazy loaded language data
+
+    var language; // string representing key of currently active language (default 'en' for english)
+
+    // var p_data = {}; //will contain localized language data for the currently selected language only
+
+
+    function p_initialize(sb) {
+        scope = sb.create(c, p_properties.id);
+        config = CORE.config[p_properties.id];
+        bindEvents();
+
+        language = config.default_language;
+        getLanguage();
+    }
+
+    function p_destroy() {
+        unbindEvents();
+        scope = null;
+        elements = {};
+    }
+
+    function bindEvents() {
+        scope.listen(listeners);
+    }
+
+    function unbindEvents() {
+        scope.ignore(Object.keys(listeners));
+    }
+
+
+    function changeLanguage(data) {
+        language = data.language;
+        getLanguage();
+    }
+
+    /**
+     * Retrieve language data for specific language
+     * @return {[type]}      [description]
+     */
+    function getLanguage() {
+        // If language is not loaded, retrieve it then update.
+        // If language is already loaded, update only.
+
+        if (!p_languages[language]) {
+            $.getJSON(config.path + language + config.ext).done(function(response) {
+                p_languages[language] = response;
+                updateLanguage();
+            });
+        } else {
+            updateLanguage();
+        }
+    }
+
+    function updateLanguage() {
+        console.log('Language changed to ' + language);
+
+        scope.notify({
+            type: 'data-set',
+            data: {
+                language: p_languages[language]
+            }
+        });
+        translate();
+    }
+
+    /**
+     * Convert all text to localized language values
+     * @return {[type]} [description]
+     */
+    function translate() {
+        var elements = document.querySelectorAll('.localize');
+
+        for (var i = 0; i < elements.length; i++) {
+            localizeElement(elements[i]);
+        }
+    }
+
+    function localizeElement(element) {
+        var key = element.getAttribute("data-localize");
+
+        var text = p_getLocalizedText(key);
+
+        if (text) {
+            switch (element.tagName) {
+                case 'INPUT':
+                    element.value = text;
+                    break;
+                default:
+                    element.innerHTML = text;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function p_getLocalizedText(key) {
+        if (c.data.language[key]) {
+            return c.data.language[key];
+        } else {
+            return false;
+        }
+    }
+
+    return {
+        properties: p_properties,
+        initialize: p_initialize,
+        destroy: p_destroy,
+    };
 });
 
 CORE.createModule('system-server', function(c) {

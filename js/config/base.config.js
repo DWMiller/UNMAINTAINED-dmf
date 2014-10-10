@@ -7,5 +7,10 @@
 CORE.extendConfig({
 	'system-server': {
 		endpoint: 'http://127.0.0.1:8080/',
+	},	
+	'system-localize': {
+		default_language: 'en',
+		path:'js/localization/',
+		ext: '.lang.json'		
 	}	
 });

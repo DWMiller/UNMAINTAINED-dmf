@@ -13,6 +13,7 @@ CORE.createModule('system-controller', function(c) {
         scope = sb.create(c, p_properties.id);
         c.startModule('system-server');
         c.startModule('system-data');
+        c.startModule('system-localize');
 
         bindEvents();
     }
@@ -21,6 +22,7 @@ CORE.createModule('system-controller', function(c) {
         unbindEvents();
         c.stopModule('system-server');
         c.stopModule('system-data');
+        c.stopModule('system-localize');
     }
 
     function bindEvents() {
