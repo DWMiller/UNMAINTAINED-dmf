@@ -20,9 +20,7 @@ CORE.Sandbox = {
                 }
             },
             listen: function(evts) {
-                if (core.is_obj(evts)) {
-                    core.registerEvents(evts, moduleID);
-                }
+                core.registerEvents(evts, moduleID);
             },
             ignore: function(evts) {
                 if (!core.is_arr(evts)) {

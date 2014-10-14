@@ -1,3 +1,7 @@
+/**
+ * [CORE description]
+ * @version  0.15
+ */
 var CORE = function() {
     'use strict';
     var moduleData = {}
@@ -7,13 +11,16 @@ var CORE = function() {
         modules: moduleData,
         config: {},
         data: {},
+        events: {},
         /**
          * Triggers starter logic for all game modules
          * @return {[type]} [description]
          */
         activate: function(starter) {
             this.startModule('system-controller');
-            this.startModule(starter);
+            if (typeof starter !== 'undefined') {
+                this.startModule(starter);
+            }
         },
         debug: function(on) {
             if (on !== 'undefined') {
@@ -50,7 +57,7 @@ var CORE = function() {
             } else {
                 return false;
             }
-        },        
+        },
         startModule: function(moduleID) {
             var mod = moduleData[moduleID];
 
@@ -88,32 +95,36 @@ var CORE = function() {
         },
         registerEvents: function(evts, mod) {
             if (this.is_obj(evts) && mod) {
-                if (moduleData[mod]) {
-                    moduleData[mod].events = evts;
-                } else {
-                    // this.log(1, mod);
+                for (var eventKey in evts) {
+                    if (!this.events[eventKey]) {
+                        this.events[eventKey] = {};
+                    }
+                    this.events[eventKey][mod] = evts[eventKey];
                 }
             } else {
-                // this.log(1, mod);
+                this.log(1, "Error registering events for: " + mod);
             }
         },
         triggerEvent: function(evt) {
-            console.log(evt);
-            var mod;
+            var bindings = this.events[evt.type];
+            if (!bindings) {
+                return;
+            }
 
-            for (mod in moduleData) {
-                if (moduleData.hasOwnProperty(mod)) {
-                    mod = moduleData[mod];
-                    if (mod.events && mod.events[evt.type]) {
-                        mod.events[evt.type](evt.data);
-                    }
-                }
+            for (var binding in bindings) {
+                bindings[binding](evt.data);
             }
         },
+        /**
+         * Unsubscribes a single module from a set of events
+         * @param  {[type]} evts [description]
+         * @param  {[type]} mod  [description]
+         * @return {[type]}      [description]
+         */
         removeEvents: function(evts, mod) {
-            if (mod && (mod = moduleData[mod]) && mod.events) {
-                delete mod.events;
-            }
+            evts.forEach(function(event, index, array) {
+                delete CORE.events[event][mod];
+            });
         },
         log: function(severity, message) {
             if (debug) {
@@ -135,7 +146,7 @@ var CORE = function() {
                 }
             };
             this.triggerEvent(event);
-        },        
+        },
         dom: {
             find: function(selector, context) {
                 var ret = {};
@@ -176,9 +187,25 @@ var CORE = function() {
                 jQuery(element).removeClass(className);
             },
             emptyNode: function(element) {
-                while (element.firstChild) {
-                    element.removeChild(element.firstChild);
+                if (element instanceof jQuery) {
+                    element.html('');
+                } else {
+                    while (element.firstChild) {
+                        element.removeChild(element.firstChild);
+                    }
                 }
+            },
+            append: function(element, toAppend) {
+                if (!(element instanceof jQuery)) {
+                    console.log('test');
+                    element = $(element);
+                }
+
+                if (!(toAppend instanceof jQuery)) {
+                    toAppend = $(toAppend);
+                }
+
+                element.append(toAppend);
             }
         },
         is_arr: function(arr) {
