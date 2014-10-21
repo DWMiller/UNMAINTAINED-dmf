@@ -5,7 +5,7 @@
 var CORE = function() {
     'use strict';
     var moduleData = {}
-    var debug = true;
+    var debug = false;
 
     return {
         modules: moduleData,
@@ -134,7 +134,7 @@ var CORE = function() {
                 }
 
                 for (var i = 0; i < message.length; i++) {
-                    console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](message[i]);
+                    console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](JSON.stringigy(message[i],null,4));
                 };
             }
         },
@@ -197,7 +197,6 @@ var CORE = function() {
             },
             append: function(element, toAppend) {
                 if (!(element instanceof jQuery)) {
-                    console.log('test');
                     element = $(element);
                 }
 
