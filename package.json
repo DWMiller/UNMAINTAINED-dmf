@@ -1,8 +1,8 @@
 {
   "name": "js_framework",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
-    "nane": "David Miller",
+    "name": "David Miller",
     "email": "david.miller8@mohawkcollege.ca"
   },
   "repository": {

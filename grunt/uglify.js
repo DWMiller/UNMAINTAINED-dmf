@@ -6,7 +6,7 @@ module.exports = {
         },    
     dist: {
         files: {
-            'dist/dmf.min.js': ['dist/dmf.js']
+            'dist/dmf.<%= grunt.file.readJSON( "package.json" ).version %>.min.js': ['dist/dmf.js']
         }
     }
 }
