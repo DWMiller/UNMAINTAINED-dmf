@@ -134,7 +134,7 @@ var CORE = function() {
                 }
 
                 for (var i = 0; i < message.length; i++) {
-                    console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](JSON.stringigy(message[i], null, 4));
+                    console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](JSON.stringify(message[i], null, 4));
                 };
             }
         },
