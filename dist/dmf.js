@@ -1,25 +1,37 @@
 /**
  * [CORE description]
- * @version  0.15
  */
-var CORE = function() {
+var dmf = function() {
     'use strict';
     var moduleData = {}
     var debug = false;
 
     return {
+        container: null,
         modules: moduleData,
         config: {},
         data: {},
         events: {},
+        templates: {},
         /**
          * Triggers starter logic for all game modules
          * @return {[type]} [description]
          */
-        activate: function(starter) {
+        activate: function(settings) {
+            if (typeof settings.debug !== 'undefined') {
+                this.debug(settings.debug);
+            }
+
+            if (typeof settings.container !== 'undefined') {
+                this.container = document.querySelector(settings.container);
+            } else {
+                 this.container = document.querySelector('body');
+            }
+
             this.startModule('system-controller');
-            if (typeof starter !== 'undefined') {
-                this.startModule(starter);
+
+            if (typeof settings.startup !== 'undefined') {
+                this.startModule(settings.startup);
             }
         },
         debug: function(on) {
@@ -35,11 +47,13 @@ var CORE = function() {
         createModule: function(moduleID, creator) {
             var temp;
             if (typeof moduleID === 'string' && typeof creator === 'function') {
+
                 temp = creator(this);
                 if (temp.initialize && typeof temp.initialize === 'function' && temp.destroy && typeof temp.destroy === 'function') {
                     temp = null;
                     moduleData[moduleID] = {
                         create: creator,
+                        config: this.config[moduleID],
                         instance: null
                     };
                     this.log(1, "Module '" + moduleID + "' Registration : SUCCESS");
@@ -53,7 +67,7 @@ var CORE = function() {
         getModule: function(moduleID) {
             var mod = moduleData[moduleID];
             if (mod) {
-                return mod.create(this);
+                return mod.create(this, mod.config);
             } else {
                 return false;
             }
@@ -105,6 +119,24 @@ var CORE = function() {
                 this.log(1, "Error registering events for: " + mod);
             }
         },
+        notify: function(evt) {
+            if (this.is_obj(evt) && evt.type) {
+                this.triggerEvent(evt);
+            }
+        },
+        //listen & ignore should be here, but moduleID is not available and would need to be passed from the module
+        // listen: function(evts) {
+        //     this.registerEvents(evts, moduleID);
+        // },
+        // ignore: function(evts) {
+        //     if (!this.is_arr(evts)) {
+        //         var e = evts;
+        //         evts = [e];
+        //     }
+
+        // this.removeEvents(evts, moduleID);
+        // },
+
         triggerEvent: function(evt) {
             var bindings = this.events[evt.type];
             if (!bindings) {
@@ -160,7 +192,10 @@ var CORE = function() {
     };
 }()
 
-CORE.dom = function() {
+//Deprecated namespace usage, delete in future versions
+var CORE = dmf;
+
+dmf.dom = function() {
     return {
         find: function(selector, context) {
             var ret = {};
@@ -173,6 +208,7 @@ CORE.dom = function() {
             return ret;
         },
         bind: function(element, evt, fn) {
+            console.log('dom.bind is deprecated, use dom.listen');
             if (element && evt) {
                 if (typeof evt === 'function') {
                     fn = evt;
@@ -184,6 +220,29 @@ CORE.dom = function() {
             }
         },
         unbind: function(element, evt, fn) {
+            console.log('dom.unbind is deprecated, use dom.ignore');
+            if (element && evt) {
+                if (typeof evt === 'function') {
+                    fn = evt;
+                    evt = 'click';
+                }
+                element.removeEventListener(evt, fn)
+            } else {
+                // log wrong arguments
+            }
+        },
+        listen: function(element, evt, fn) {
+            if (element && evt) {
+                if (typeof evt === 'function') {
+                    fn = evt;
+                    evt = 'click';
+                }
+                element.addEventListener(evt, fn)
+            } else {
+                // log wrong arguments
+            }
+        },
+        ignore: function(element, evt, fn) {
             if (element && evt) {
                 if (typeof evt === 'function') {
                     fn = evt;
@@ -199,6 +258,9 @@ CORE.dom = function() {
         },
         removeClass: function(element, className) {
             jQuery(element).removeClass(className);
+        },
+        toggleClass: function(element, toggleClass) {
+            jQuery(element).toggleClass(toggleClass);
         },
         emptyNode: function(element) {
             if (element instanceof jQuery) {
@@ -223,9 +285,10 @@ CORE.dom = function() {
     }
 }();
 
-CORE.Sandbox = {
+dmf.Sandbox = {
     create: function(core, moduleID, module_selector) {
-        var CONTAINER = document.getElementById(module_selector) || document.getElementById('main-container');
+        //Should allow any selector rather than only IDs, but will break existing modules
+        var CONTAINER = document.getElementById(module_selector) || core.container;
         return {
             self: function() {
                 return CONTAINER;
@@ -234,20 +297,28 @@ CORE.Sandbox = {
                 return core.dom.find(selector, CONTAINER);
             },
             addEvent: function(element, type, fn) {
-                core.dom.bind(element, type, fn);
+                console.log('Sandbox.addEvent is deprecated - use dmf.dom.listen with same args');
+                core.dom.listen(element, type, fn);
             },
             removeEvent: function(element, type, fn) {
-                core.dom.unbind(element, type, fn);
+                console.log('Sandbox.removeEvent is deprecated - use dmf.dom.ignore with same args');
+                core.dom.ignore(element, type, fn);
             },
+            // Deprecated as sandbox component, used within CORE now
             notify: function(evt) {
+                // console.log('"notify" function access via sandbox is deprecated, access via CORE instead ');
                 if (core.is_obj(evt) && evt.type) {
                     core.triggerEvent(evt);
                 }
             },
+            // Deprecated as sandbox component, used within CORE now
             listen: function(evts) {
+                // console.log('"listen" function access via sandbox is deprecated, access via CORE instead ');
                 core.registerEvents(evts, moduleID);
             },
+            // Deprecated as sandbox component, used within CORE now
             ignore: function(evts) {
+                // console.log('"ignore" function access via sandbox is deprecated, access via CORE instead ');
                 if (!core.is_arr(evts)) {
                     var e = evts;
                     evts = [e];
@@ -281,7 +352,7 @@ CORE.Sandbox = {
  * Provided as a location for general config settings if an individual file is not appropriate or not preferred.
  * @type {Object}
  */
-CORE.extendConfig({
+dmf.extendConfig({
 	'system-server': {
 		endpoint: 'http://127.0.0.1:8080/',
 	},	
@@ -291,7 +362,7 @@ CORE.extendConfig({
 		ext: '.lang.json'		
 	}	
 });
-CORE.createModule('system-controller', function(c) {
+dmf.createModule('system-controller', function(c) {
     'use strict';
 
     var p_properties = {
@@ -334,7 +405,7 @@ CORE.createModule('system-controller', function(c) {
 
 });
 
-CORE.createModule('system-data', function(c) {
+dmf.createModule('system-data', function(c) {
     'use strict';
 
     var p_properties = {
@@ -366,6 +437,7 @@ CORE.createModule('system-data', function(c) {
     }
 
     function setData(content) {
+        console.log('Data module is deprecated, too be removed or redesigned in future build');
         c.extend(c.data, content);
 
         //Maybe work out a way to customize event based on data updated
@@ -376,6 +448,7 @@ CORE.createModule('system-data', function(c) {
     }
 
     function clearData(field) {
+        console.log('Data module is deprecated, too be removed or redesigned in future build')        ;
         if (typeof field !== 'undefined') {
             c.data[field] = {};
             delete c.data[field];
@@ -393,14 +466,14 @@ CORE.createModule('system-data', function(c) {
 
 });
 
-CORE.createModule('system-localize', function(c) {
+dmf.createModule('system-localize', function(c, config) {
     'use strict';
 
     var p_properties = {
         id: 'system-localize'
     };
 
-    var scope, elements, config;
+    var scope, elements;
 
     var listeners = {
         'language-change': changeLanguage
@@ -415,7 +488,6 @@ CORE.createModule('system-localize', function(c) {
 
     function p_initialize(sb) {
         scope = sb.create(c, p_properties.id);
-        config = CORE.config[p_properties.id];
         bindEvents();
 
         language = config.default_language;
@@ -463,12 +535,17 @@ CORE.createModule('system-localize', function(c) {
     function updateLanguage() {
         console.log('Language changed to ' + language);
 
-        scope.notify({
-            type: 'data-set',
-            data: {
-                language: p_languages[language]
-            }
+        c.extend(c.data, {
+            language: p_languages[language]
         });
+
+        // scope.notify({
+        //     type: 'data-set',
+        //     data: {
+        //         language: p_languages[language]
+        //     }
+        // });
+
         translate();
     }
 
@@ -517,7 +594,7 @@ CORE.createModule('system-localize', function(c) {
     };
 });
 
-CORE.createModule('system-server', function(c) {
+dmf.createModule('system-server', function(c) {
     'use strict';
 
     var p_properties = {

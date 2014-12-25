@@ -1,25 +1,37 @@
 /**
  * [CORE description]
- * @version  0.15
  */
-var CORE = function() {
+var dmf = function() {
     'use strict';
     var moduleData = {}
     var debug = false;
 
     return {
+        container: null,
         modules: moduleData,
         config: {},
         data: {},
         events: {},
+        templates: {},
         /**
          * Triggers starter logic for all game modules
          * @return {[type]} [description]
          */
-        activate: function(starter) {
+        activate: function(settings) {
+            if (typeof settings.debug !== 'undefined') {
+                this.debug(settings.debug);
+            }
+
+            if (typeof settings.container !== 'undefined') {
+                this.container = document.querySelector(settings.container);
+            } else {
+                 this.container = document.querySelector('body');
+            }
+
             this.startModule('system-controller');
-            if (typeof starter !== 'undefined') {
-                this.startModule(starter);
+
+            if (typeof settings.startup !== 'undefined') {
+                this.startModule(settings.startup);
             }
         },
         debug: function(on) {
@@ -35,11 +47,13 @@ var CORE = function() {
         createModule: function(moduleID, creator) {
             var temp;
             if (typeof moduleID === 'string' && typeof creator === 'function') {
+
                 temp = creator(this);
                 if (temp.initialize && typeof temp.initialize === 'function' && temp.destroy && typeof temp.destroy === 'function') {
                     temp = null;
                     moduleData[moduleID] = {
                         create: creator,
+                        config: this.config[moduleID],
                         instance: null
                     };
                     this.log(1, "Module '" + moduleID + "' Registration : SUCCESS");
@@ -53,7 +67,7 @@ var CORE = function() {
         getModule: function(moduleID) {
             var mod = moduleData[moduleID];
             if (mod) {
-                return mod.create(this);
+                return mod.create(this, mod.config);
             } else {
                 return false;
             }
@@ -105,6 +119,24 @@ var CORE = function() {
                 this.log(1, "Error registering events for: " + mod);
             }
         },
+        notify: function(evt) {
+            if (this.is_obj(evt) && evt.type) {
+                this.triggerEvent(evt);
+            }
+        },
+        //listen & ignore should be here, but moduleID is not available and would need to be passed from the module
+        // listen: function(evts) {
+        //     this.registerEvents(evts, moduleID);
+        // },
+        // ignore: function(evts) {
+        //     if (!this.is_arr(evts)) {
+        //         var e = evts;
+        //         evts = [e];
+        //     }
+
+        // this.removeEvents(evts, moduleID);
+        // },
+
         triggerEvent: function(evt) {
             var bindings = this.events[evt.type];
             if (!bindings) {
@@ -159,3 +191,6 @@ var CORE = function() {
         }
     };
 }()
+
+//Deprecated namespace usage, delete in future versions
+var CORE = dmf;

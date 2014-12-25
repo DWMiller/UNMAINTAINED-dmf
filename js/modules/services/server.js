@@ -1,4 +1,4 @@
-CORE.createModule('system-server', function(c) {
+dmf.createModule('system-server', function(c) {
     'use strict';
 
     var p_properties = {

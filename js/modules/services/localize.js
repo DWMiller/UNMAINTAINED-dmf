@@ -1,11 +1,11 @@
-CORE.createModule('system-localize', function(c) {
+dmf.createModule('system-localize', function(c, config) {
     'use strict';
 
     var p_properties = {
         id: 'system-localize'
     };
 
-    var scope, elements, config;
+    var scope, elements;
 
     var listeners = {
         'language-change': changeLanguage
@@ -20,7 +20,6 @@ CORE.createModule('system-localize', function(c) {
 
     function p_initialize(sb) {
         scope = sb.create(c, p_properties.id);
-        config = CORE.config[p_properties.id];
         bindEvents();
 
         language = config.default_language;
@@ -68,12 +67,17 @@ CORE.createModule('system-localize', function(c) {
     function updateLanguage() {
         console.log('Language changed to ' + language);
 
-        scope.notify({
-            type: 'data-set',
-            data: {
-                language: p_languages[language]
-            }
+        c.extend(c.data, {
+            language: p_languages[language]
         });
+
+        // scope.notify({
+        //     type: 'data-set',
+        //     data: {
+        //         language: p_languages[language]
+        //     }
+        // });
+
         translate();
     }
 

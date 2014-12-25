@@ -4,7 +4,7 @@
  * Provided as a location for general config settings if an individual file is not appropriate or not preferred.
  * @type {Object}
  */
-CORE.extendConfig({
+dmf.extendConfig({
 	'system-server': {
 		endpoint: 'http://127.0.0.1:8080/',
 	},	

@@ -1,4 +1,4 @@
-CORE.createModule('system-data', function(c) {
+dmf.createModule('system-data', function(c) {
     'use strict';
 
     var p_properties = {
@@ -30,6 +30,7 @@ CORE.createModule('system-data', function(c) {
     }
 
     function setData(content) {
+        console.log('Data module is deprecated, too be removed or redesigned in future build');
         c.extend(c.data, content);
 
         //Maybe work out a way to customize event based on data updated
@@ -40,6 +41,7 @@ CORE.createModule('system-data', function(c) {
     }
 
     function clearData(field) {
+        console.log('Data module is deprecated, too be removed or redesigned in future build')        ;
         if (typeof field !== 'undefined') {
             c.data[field] = {};
             delete c.data[field];

@@ -1,4 +1,4 @@
-CORE.dom = function() {
+dmf.dom = function() {
     return {
         find: function(selector, context) {
             var ret = {};
@@ -11,6 +11,7 @@ CORE.dom = function() {
             return ret;
         },
         bind: function(element, evt, fn) {
+            console.log('dom.bind is deprecated, use dom.listen');
             if (element && evt) {
                 if (typeof evt === 'function') {
                     fn = evt;
@@ -22,6 +23,29 @@ CORE.dom = function() {
             }
         },
         unbind: function(element, evt, fn) {
+            console.log('dom.unbind is deprecated, use dom.ignore');
+            if (element && evt) {
+                if (typeof evt === 'function') {
+                    fn = evt;
+                    evt = 'click';
+                }
+                element.removeEventListener(evt, fn)
+            } else {
+                // log wrong arguments
+            }
+        },
+        listen: function(element, evt, fn) {
+            if (element && evt) {
+                if (typeof evt === 'function') {
+                    fn = evt;
+                    evt = 'click';
+                }
+                element.addEventListener(evt, fn)
+            } else {
+                // log wrong arguments
+            }
+        },
+        ignore: function(element, evt, fn) {
             if (element && evt) {
                 if (typeof evt === 'function') {
                     fn = evt;
@@ -37,6 +61,9 @@ CORE.dom = function() {
         },
         removeClass: function(element, className) {
             jQuery(element).removeClass(className);
+        },
+        toggleClass: function(element, toggleClass) {
+            jQuery(element).toggleClass(toggleClass);
         },
         emptyNode: function(element) {
             if (element instanceof jQuery) {

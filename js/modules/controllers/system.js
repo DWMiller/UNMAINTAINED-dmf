@@ -1,4 +1,4 @@
-CORE.createModule('system-controller', function(c) {
+dmf.createModule('system-controller', function(c) {
     'use strict';
 
     var p_properties = {
