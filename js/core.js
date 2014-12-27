@@ -25,7 +25,7 @@ var dmf = function() {
             if (typeof settings.container !== 'undefined') {
                 this.container = document.querySelector(settings.container);
             } else {
-                 this.container = document.querySelector('body');
+                this.container = document.querySelector('body');
             }
 
             this.startModule('system-controller');
@@ -78,6 +78,12 @@ var dmf = function() {
             if (mod) {
                 mod.instance = this.getModule(moduleID);
                 mod.instance.initialize(this.Sandbox);
+
+                if (mod.instance.properties.listeners) {
+                    this.registerEvents(mod.instance.properties.listeners, moduleID);
+                    console.log("Events Registered - " + moduleID)
+                }
+
                 this.log(1, "Start Module '" + moduleID + "': SUCCESS");
             }
         },
@@ -92,6 +98,12 @@ var dmf = function() {
         stopModule: function(moduleID) {
             var data;
             if ((data = moduleData[moduleID]) && data.instance) {
+
+                if (data.instance.properties.listeners) {
+                    console.log("Events Ignored - " + moduleID)
+                    this.removeEvents(Object.keys(data.instance.properties.listeners), moduleID);
+                }
+
                 data.instance.destroy();
                 data.instance = null;
                 this.log(1, "Stop Module '" + moduleID + "': SUCCESS");
@@ -155,7 +167,7 @@ var dmf = function() {
          */
         removeEvents: function(evts, mod) {
             evts.forEach(function(event, index, array) {
-                delete CORE.events[event][mod];
+                delete dmf.events[event][mod];
             });
         },
         log: function(severity, message) {

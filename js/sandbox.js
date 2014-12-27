@@ -26,12 +26,12 @@ dmf.Sandbox = {
             },
             // Deprecated as sandbox component, used within CORE now
             listen: function(evts) {
-                // console.log('"listen" function access via sandbox is deprecated, access via CORE instead ');
+                console.warn('Sandbox.listen is deprecated, handled automatically on module start');
                 core.registerEvents(evts, moduleID);
             },
             // Deprecated as sandbox component, used within CORE now
             ignore: function(evts) {
-                // console.log('"ignore" function access via sandbox is deprecated, access via CORE instead ');
+                console.warn('Sandbox.ignore is deprecated, handled automatically on module start');
                 if (!core.is_arr(evts)) {
                     var e = evts;
                     evts = [e];

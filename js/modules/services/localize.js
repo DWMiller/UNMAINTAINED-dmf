@@ -1,15 +1,14 @@
 dmf.createModule('system-localize', function(c, config) {
     'use strict';
 
-    var p_properties = {
-        id: 'system-localize'
+    var properties = {
+        id: 'system-localize',
+        listeners:{
+            'language-change': changeLanguage
+        }
     };
 
     var scope, elements;
-
-    var listeners = {
-        'language-change': changeLanguage
-    };
 
     var p_languages = {}; // will contain lazy loaded language data
 
@@ -18,28 +17,16 @@ dmf.createModule('system-localize', function(c, config) {
     // var p_data = {}; //will contain localized language data for the currently selected language only
 
 
-    function p_initialize(sb) {
-        scope = sb.create(c, p_properties.id);
-        bindEvents();
-
+    function initialize(sb) {
+        scope = sb.create(c, properties.id);
         language = config.default_language;
         getLanguage();
     }
 
-    function p_destroy() {
-        unbindEvents();
+    function destroy() {
         scope = null;
         elements = {};
     }
-
-    function bindEvents() {
-        scope.listen(listeners);
-    }
-
-    function unbindEvents() {
-        scope.ignore(Object.keys(listeners));
-    }
-
 
     function changeLanguage(data) {
         language = data.language;
@@ -111,7 +98,7 @@ dmf.createModule('system-localize', function(c, config) {
         }
     }
 
-    function p_getLocalizedText(key) {
+    function getLocalizedText(key) {
         if (c.data.language[key]) {
             return c.data.language[key];
         } else {
@@ -120,8 +107,8 @@ dmf.createModule('system-localize', function(c, config) {
     }
 
     return {
-        properties: p_properties,
-        initialize: p_initialize,
-        destroy: p_destroy,
+        properties: properties,
+        initialize: initialize,
+        destroy: destroy,
     };
 });

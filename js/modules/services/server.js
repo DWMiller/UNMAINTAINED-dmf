@@ -1,41 +1,28 @@
-dmf.createModule('system-server', function(c) {
+dmf.createModule('system-server', function(c,config) {
     'use strict';
 
-    var p_properties = {
-        id: 'system-server'
+    var properties = {
+        id: 'system-server',
+        listeners: {
+            'server-request': request,
+            'server-post': post,
+            'session-set': setSession,
+            'session-clear': clearSession
+        }
     };
 
-    var config, scope, session;
+    var scope, session;
 
-    var listeners = {
-        'server-request': request,
-        'server-post': post,
-        'session-set': setSession,
-        'session-clear': clearSession
-    };
-
-    function p_initialize(sb) {
-        scope = sb.create(c, p_properties.id);
-        config = CORE.config[p_properties.id];
-        bindEvents();
+    function initialize(sb) {
+        scope = sb.create(c, properties.id);
     }
 
-    function p_destroy() {
-        unbindEvents();
-    }
-
-    function bindEvents() {
-        scope.listen(listeners);
-    }
-
-    function unbindEvents() {
-        scope.ignore(Object.keys(listeners));
-    }
+    function destroy() {}
 
     function request() {
         //TODO - for GET requests
     }
-    
+
     function post(data) {
         c.log(1, ['REQUEST', data]);
 
@@ -79,9 +66,9 @@ dmf.createModule('system-server', function(c) {
     }
 
     return {
-        properties: p_properties,
-        initialize: p_initialize,
-        destroy: p_destroy,
+        properties: properties,
+        initialize: initialize,
+        destroy: destroy
     };
 
 });

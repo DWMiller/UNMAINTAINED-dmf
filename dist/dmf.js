@@ -25,7 +25,7 @@ var dmf = function() {
             if (typeof settings.container !== 'undefined') {
                 this.container = document.querySelector(settings.container);
             } else {
-                 this.container = document.querySelector('body');
+                this.container = document.querySelector('body');
             }
 
             this.startModule('system-controller');
@@ -78,6 +78,12 @@ var dmf = function() {
             if (mod) {
                 mod.instance = this.getModule(moduleID);
                 mod.instance.initialize(this.Sandbox);
+
+                if (mod.instance.properties.listeners) {
+                    this.registerEvents(mod.instance.properties.listeners, moduleID);
+                    console.log("Events Registered - " + moduleID)
+                }
+
                 this.log(1, "Start Module '" + moduleID + "': SUCCESS");
             }
         },
@@ -92,6 +98,12 @@ var dmf = function() {
         stopModule: function(moduleID) {
             var data;
             if ((data = moduleData[moduleID]) && data.instance) {
+
+                if (data.instance.properties.listeners) {
+                    console.log("Events Ignored - " + moduleID)
+                    this.removeEvents(Object.keys(data.instance.properties.listeners), moduleID);
+                }
+
                 data.instance.destroy();
                 data.instance = null;
                 this.log(1, "Stop Module '" + moduleID + "': SUCCESS");
@@ -155,7 +167,7 @@ var dmf = function() {
          */
         removeEvents: function(evts, mod) {
             evts.forEach(function(event, index, array) {
-                delete CORE.events[event][mod];
+                delete dmf.events[event][mod];
             });
         },
         log: function(severity, message) {
@@ -284,7 +296,6 @@ dmf.dom = function() {
         }
     }
 }();
-
 dmf.Sandbox = {
     create: function(core, moduleID, module_selector) {
         //Should allow any selector rather than only IDs, but will break existing modules
@@ -313,12 +324,12 @@ dmf.Sandbox = {
             },
             // Deprecated as sandbox component, used within CORE now
             listen: function(evts) {
-                // console.log('"listen" function access via sandbox is deprecated, access via CORE instead ');
+                console.warn('Sandbox.listen is deprecated, handled automatically on module start');
                 core.registerEvents(evts, moduleID);
             },
             // Deprecated as sandbox component, used within CORE now
             ignore: function(evts) {
-                // console.log('"ignore" function access via sandbox is deprecated, access via CORE instead ');
+                console.warn('Sandbox.ignore is deprecated, handled automatically on module start');
                 if (!core.is_arr(evts)) {
                     var e = evts;
                     evts = [e];
@@ -365,42 +376,32 @@ dmf.extendConfig({
 dmf.createModule('system-controller', function(c) {
     'use strict';
 
-    var p_properties = {
-        id: 'system-controller'
+    var properties = {
+        id: 'system-controller',
+        listeners: {}
     };
 
     var scope;
 
-    var listeners = {};
-
-    function p_initialize(sb) {
-        scope = sb.create(c, p_properties.id);
+    function initialize(sb) {
+        scope = sb.create(c, properties.id);
+        
         c.startModule('system-server');
         c.startModule('system-data');
         c.startModule('system-localize');
-
-        bindEvents();
     }
 
-    function p_destroy() {
+    function destroy() {
         unbindEvents();
         c.stopModule('system-server');
         c.stopModule('system-data');
         c.stopModule('system-localize');
     }
 
-    function bindEvents() {
-        scope.listen(listeners);
-    }
-
-    function unbindEvents() {
-        scope.ignore(Object.keys(listeners));
-    }
-
     return {
-        properties: p_properties,
-        initialize: p_initialize,
-        destroy: p_destroy,
+        properties: properties,
+        initialize: initialize,
+        destroy: destroy,
     };
 
 });
@@ -408,36 +409,24 @@ dmf.createModule('system-controller', function(c) {
 dmf.createModule('system-data', function(c) {
     'use strict';
 
-    var p_properties = {
-        id: 'system-data'
+    var properties = {
+        id: 'system-data',
+        listeners:{
+            'data-set': setData,
+            'data-clear': clearData
+        }
     };
 
     var scope;
 
-    var listeners = {
-        'data-set': setData,
-        'data-clear': clearData
-    };
-
-    function p_initialize(sb) {
-        scope = sb.create(c, p_properties.id);
-        bindEvents();
+    function initialize(sb) {
+        scope = sb.create(c, properties.id);
     }
 
-    function p_destroy() {
-        unbindEvents();
-    }
-
-    function bindEvents() {
-        scope.listen(listeners);
-    }
-
-    function unbindEvents() {
-        scope.ignore(Object.keys(listeners));
-    }
+    function destroy() {}
 
     function setData(content) {
-        console.log('Data module is deprecated, too be removed or redesigned in future build');
+        console.log('setData: Data module is deprecated, too be removed or redesigned in future build');
         c.extend(c.data, content);
 
         //Maybe work out a way to customize event based on data updated
@@ -448,7 +437,7 @@ dmf.createModule('system-data', function(c) {
     }
 
     function clearData(field) {
-        console.log('Data module is deprecated, too be removed or redesigned in future build')        ;
+        console.log('clearData: Data module is deprecated, too be removed or redesigned in future build');
         if (typeof field !== 'undefined') {
             c.data[field] = {};
             delete c.data[field];
@@ -459,9 +448,9 @@ dmf.createModule('system-data', function(c) {
     }
 
     return {
-        properties: p_properties,
-        initialize: p_initialize,
-        destroy: p_destroy,
+        properties: properties,
+        initialize: initialize,
+        destroy: destroy,
     };
 
 });
@@ -469,15 +458,14 @@ dmf.createModule('system-data', function(c) {
 dmf.createModule('system-localize', function(c, config) {
     'use strict';
 
-    var p_properties = {
-        id: 'system-localize'
+    var properties = {
+        id: 'system-localize',
+        listeners:{
+            'language-change': changeLanguage
+        }
     };
 
     var scope, elements;
-
-    var listeners = {
-        'language-change': changeLanguage
-    };
 
     var p_languages = {}; // will contain lazy loaded language data
 
@@ -486,28 +474,16 @@ dmf.createModule('system-localize', function(c, config) {
     // var p_data = {}; //will contain localized language data for the currently selected language only
 
 
-    function p_initialize(sb) {
-        scope = sb.create(c, p_properties.id);
-        bindEvents();
-
+    function initialize(sb) {
+        scope = sb.create(c, properties.id);
         language = config.default_language;
         getLanguage();
     }
 
-    function p_destroy() {
-        unbindEvents();
+    function destroy() {
         scope = null;
         elements = {};
     }
-
-    function bindEvents() {
-        scope.listen(listeners);
-    }
-
-    function unbindEvents() {
-        scope.ignore(Object.keys(listeners));
-    }
-
 
     function changeLanguage(data) {
         language = data.language;
@@ -579,7 +555,7 @@ dmf.createModule('system-localize', function(c, config) {
         }
     }
 
-    function p_getLocalizedText(key) {
+    function getLocalizedText(key) {
         if (c.data.language[key]) {
             return c.data.language[key];
         } else {
@@ -588,50 +564,37 @@ dmf.createModule('system-localize', function(c, config) {
     }
 
     return {
-        properties: p_properties,
-        initialize: p_initialize,
-        destroy: p_destroy,
+        properties: properties,
+        initialize: initialize,
+        destroy: destroy,
     };
 });
 
-dmf.createModule('system-server', function(c) {
+dmf.createModule('system-server', function(c,config) {
     'use strict';
 
-    var p_properties = {
-        id: 'system-server'
+    var properties = {
+        id: 'system-server',
+        listeners: {
+            'server-request': request,
+            'server-post': post,
+            'session-set': setSession,
+            'session-clear': clearSession
+        }
     };
 
-    var config, scope, session;
+    var scope, session;
 
-    var listeners = {
-        'server-request': request,
-        'server-post': post,
-        'session-set': setSession,
-        'session-clear': clearSession
-    };
-
-    function p_initialize(sb) {
-        scope = sb.create(c, p_properties.id);
-        config = CORE.config[p_properties.id];
-        bindEvents();
+    function initialize(sb) {
+        scope = sb.create(c, properties.id);
     }
 
-    function p_destroy() {
-        unbindEvents();
-    }
-
-    function bindEvents() {
-        scope.listen(listeners);
-    }
-
-    function unbindEvents() {
-        scope.ignore(Object.keys(listeners));
-    }
+    function destroy() {}
 
     function request() {
         //TODO - for GET requests
     }
-    
+
     function post(data) {
         c.log(1, ['REQUEST', data]);
 
@@ -675,9 +638,9 @@ dmf.createModule('system-server', function(c) {
     }
 
     return {
-        properties: p_properties,
-        initialize: p_initialize,
-        destroy: p_destroy,
+        properties: properties,
+        initialize: initialize,
+        destroy: destroy
     };
 
 });

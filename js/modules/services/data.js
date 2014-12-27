@@ -1,36 +1,24 @@
 dmf.createModule('system-data', function(c) {
     'use strict';
 
-    var p_properties = {
-        id: 'system-data'
+    var properties = {
+        id: 'system-data',
+        listeners:{
+            'data-set': setData,
+            'data-clear': clearData
+        }
     };
 
     var scope;
 
-    var listeners = {
-        'data-set': setData,
-        'data-clear': clearData
-    };
-
-    function p_initialize(sb) {
-        scope = sb.create(c, p_properties.id);
-        bindEvents();
+    function initialize(sb) {
+        scope = sb.create(c, properties.id);
     }
 
-    function p_destroy() {
-        unbindEvents();
-    }
-
-    function bindEvents() {
-        scope.listen(listeners);
-    }
-
-    function unbindEvents() {
-        scope.ignore(Object.keys(listeners));
-    }
+    function destroy() {}
 
     function setData(content) {
-        console.log('Data module is deprecated, too be removed or redesigned in future build');
+        console.log('setData: Data module is deprecated, too be removed or redesigned in future build');
         c.extend(c.data, content);
 
         //Maybe work out a way to customize event based on data updated
@@ -41,7 +29,7 @@ dmf.createModule('system-data', function(c) {
     }
 
     function clearData(field) {
-        console.log('Data module is deprecated, too be removed or redesigned in future build')        ;
+        console.log('clearData: Data module is deprecated, too be removed or redesigned in future build');
         if (typeof field !== 'undefined') {
             c.data[field] = {};
             delete c.data[field];
@@ -52,9 +40,9 @@ dmf.createModule('system-data', function(c) {
     }
 
     return {
-        properties: p_properties,
-        initialize: p_initialize,
-        destroy: p_destroy,
+        properties: properties,
+        initialize: initialize,
+        destroy: destroy,
     };
 
 });
