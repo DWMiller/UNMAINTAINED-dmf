@@ -49,17 +49,18 @@ var dmf = function() {
             if (typeof moduleID === 'string' && typeof creator === 'function') {
 
                 temp = creator(this);
-                if (temp.initialize && typeof temp.initialize === 'function' && temp.destroy && typeof temp.destroy === 'function') {
-                    temp = null;
-                    moduleData[moduleID] = {
-                        create: creator,
-                        config: this.config[moduleID],
-                        instance: null
-                    };
-                    this.log(1, "Module '" + moduleID + "' Registration : SUCCESS");
-                } else {
-                    this.log(2, "Module '" + moduleID + "' Registration : FAILED : instance has no initialize or destroy functions");
-                }
+                // if (temp.initialize && typeof temp.initialize === 'function' && temp.destroy && typeof temp.destroy === 'function') {
+                temp = null;
+                moduleData[moduleID] = {
+                    create: creator,
+                    config: this.config[moduleID],
+                    instance: null
+                };
+                this.log(1, "Module '" + moduleID + "' Registration : SUCCESS");
+                // } else {
+                //     this.log(2, "Module '" + moduleID + "' Registration : FAILED : instance has no initialize or destroy functions");
+                // }
+
             } else {
                 this.log(2, "Module '" + moduleID + "' Registration : FAILED : one or more arguments are of incorrect type");
             }
@@ -77,7 +78,11 @@ var dmf = function() {
 
             if (mod) {
                 mod.instance = this.getModule(moduleID);
-                mod.instance.initialize(this.Sandbox);
+
+                // Modules do not require an initializing function, use it if exists
+                if (mod.instance.initialize && typeof mod.instance.initialize === 'function') {
+                    mod.instance.initialize(this.Sandbox.create(this, mod.instance.properties));
+                } 
 
                 if (mod.instance.properties.listeners) {
                     this.registerEvents(mod.instance.properties.listeners, moduleID);
@@ -104,8 +109,20 @@ var dmf = function() {
                     this.removeEvents(Object.keys(data.instance.properties.listeners), moduleID);
                 }
 
-                data.instance.destroy();
+                // Modules do not require a destroy function, use it if exists
+                if (data.instance.destroy && typeof data.instance.destroy === 'function') {
+                    data.instance.destroy();
+                } else {
+                    // define scope/sandbox here if initialization function is not present
+                    if (data.instance.scope) {
+                        data.instance.scope = null;
+                    }
+                    // this.dispose(data.instance);
+                }
+
                 data.instance = null;
+                delete data.instance;
+
                 this.log(1, "Stop Module '" + moduleID + "': SUCCESS");
             } else {
                 this.log(2, "Stop Module '" + moduleID + "': FAILED : module does not exist or has not been started");
@@ -198,9 +215,15 @@ var dmf = function() {
             return jQuery.isPlainObject(obj);
         },
         extend: function(targetObject, extendObject) {
-            jQuery.extend(true, targetObject, extendObject);
-
-        }
+                jQuery.extend(true, targetObject, extendObject);
+            }
+            // dispose: function(obj) {
+            //     for (var o in obj)
+            //         if (isNaN(parseInt(o))) {
+            //             this.dispose(obj[o]);
+            //         }
+            //     delete obj; 
+            // }
     };
 }()
 
@@ -218,30 +241,6 @@ dmf.dom = function() {
                 ret = document.querySelector(selector);
             }
             return ret;
-        },
-        bind: function(element, evt, fn) {
-            console.log('dom.bind is deprecated, use dom.listen');
-            if (element && evt) {
-                if (typeof evt === 'function') {
-                    fn = evt;
-                    evt = 'click';
-                }
-                element.addEventListener(evt, fn)
-            } else {
-                // log wrong arguments
-            }
-        },
-        unbind: function(element, evt, fn) {
-            console.log('dom.unbind is deprecated, use dom.ignore');
-            if (element && evt) {
-                if (typeof evt === 'function') {
-                    fn = evt;
-                    evt = 'click';
-                }
-                element.removeEventListener(evt, fn)
-            } else {
-                // log wrong arguments
-            }
         },
         listen: function(element, evt, fn) {
             if (element && evt) {
@@ -297,7 +296,10 @@ dmf.dom = function() {
     }
 }();
 dmf.Sandbox = {
-    create: function(core, moduleID, module_selector) {
+    create: function(core, moduleProperties) {
+        var moduleID = moduleProperties.id || null;
+        var module_selector = moduleProperties.selector || null
+ 
         //Should allow any selector rather than only IDs, but will break existing modules
         var CONTAINER = document.getElementById(module_selector) || core.container;
         return {
@@ -306,37 +308,7 @@ dmf.Sandbox = {
             },
             find: function(selector) {
                 return core.dom.find(selector, CONTAINER);
-            },
-            addEvent: function(element, type, fn) {
-                console.log('Sandbox.addEvent is deprecated - use dmf.dom.listen with same args');
-                core.dom.listen(element, type, fn);
-            },
-            removeEvent: function(element, type, fn) {
-                console.log('Sandbox.removeEvent is deprecated - use dmf.dom.ignore with same args');
-                core.dom.ignore(element, type, fn);
-            },
-            // Deprecated as sandbox component, used within CORE now
-            notify: function(evt) {
-                // console.log('"notify" function access via sandbox is deprecated, access via CORE instead ');
-                if (core.is_obj(evt) && evt.type) {
-                    core.triggerEvent(evt);
-                }
-            },
-            // Deprecated as sandbox component, used within CORE now
-            listen: function(evts) {
-                console.warn('Sandbox.listen is deprecated, handled automatically on module start');
-                core.registerEvents(evts, moduleID);
-            },
-            // Deprecated as sandbox component, used within CORE now
-            ignore: function(evts) {
-                console.warn('Sandbox.ignore is deprecated, handled automatically on module start');
-                if (!core.is_arr(evts)) {
-                    var e = evts;
-                    evts = [e];
-                }
-
-                core.removeEvents(evts, moduleID);
-            },
+            },            
             hide: function(element) {
                 if (typeof element === 'undefined') {
                     element = CONTAINER;
@@ -381,18 +353,13 @@ dmf.createModule('system-controller', function(c) {
         listeners: {}
     };
 
-    var scope;
-
-    function initialize(sb) {
-        scope = sb.create(c, properties.id);
-        
+    function initialize(scope) {
         c.startModule('system-server');
         c.startModule('system-data');
         c.startModule('system-localize');
     }
 
     function destroy() {
-        unbindEvents();
         c.stopModule('system-server');
         c.stopModule('system-data');
         c.stopModule('system-localize');
@@ -406,54 +373,54 @@ dmf.createModule('system-controller', function(c) {
 
 });
 
-dmf.createModule('system-data', function(c) {
-    'use strict';
+// dmf.createModule('system-data', function(c) {
+//     'use strict';
 
-    var properties = {
-        id: 'system-data',
-        listeners:{
-            'data-set': setData,
-            'data-clear': clearData
-        }
-    };
+//     var properties = {
+//         id: 'system-data',
+//         listeners:{
+//             'data-set': setData,
+//             'data-clear': clearData
+//         }
+//     };
 
-    var scope;
+//     var scope;
 
-    function initialize(sb) {
-        scope = sb.create(c, properties.id);
-    }
+//     function initialize(sb) {
+//         scope = sb.create(c, properties.id);
+//     }
 
-    function destroy() {}
+//     function destroy() {}
 
-    function setData(content) {
-        console.log('setData: Data module is deprecated, too be removed or redesigned in future build');
-        c.extend(c.data, content);
+//     function setData(content) {
+//         console.log('setData: Data module is deprecated, too be removed or redesigned in future build');
+//         c.extend(c.data, content);
 
-        //Maybe work out a way to customize event based on data updated
-        scope.notify({
-            type: 'data-update',
-            data: content
-        });
-    }
+//         //Maybe work out a way to customize event based on data updated
+//         c.notify({
+//             type: 'data-update',
+//             data: content
+//         });
+//     }
 
-    function clearData(field) {
-        console.log('clearData: Data module is deprecated, too be removed or redesigned in future build');
-        if (typeof field !== 'undefined') {
-            c.data[field] = {};
-            delete c.data[field];
-        } else {
-            c.data = {};
-            delete c.data;
-        }
-    }
+//     function clearData(field) {
+//         console.log('clearData: Data module is deprecated, too be removed or redesigned in future build');
+//         if (typeof field !== 'undefined') {
+//             c.data[field] = {};
+//             delete c.data[field];
+//         } else {
+//             c.data = {};
+//             delete c.data;
+//         }
+//     }
 
-    return {
-        properties: properties,
-        initialize: initialize,
-        destroy: destroy,
-    };
+//     return {
+//         properties: properties,
+//         initialize: initialize,
+//         destroy: destroy,
+//     };
 
-});
+// });
 
 dmf.createModule('system-localize', function(c, config) {
     'use strict';
@@ -465,7 +432,7 @@ dmf.createModule('system-localize', function(c, config) {
         }
     };
 
-    var scope, elements;
+    var elements;
 
     var p_languages = {}; // will contain lazy loaded language data
 
@@ -474,14 +441,12 @@ dmf.createModule('system-localize', function(c, config) {
     // var p_data = {}; //will contain localized language data for the currently selected language only
 
 
-    function initialize(sb) {
-        scope = sb.create(c, properties.id);
+    function initialize(scope) {
         language = config.default_language;
         getLanguage();
     }
 
     function destroy() {
-        scope = null;
         elements = {};
     }
 
@@ -515,7 +480,7 @@ dmf.createModule('system-localize', function(c, config) {
             language: p_languages[language]
         });
 
-        // scope.notify({
+        // c.notify({
         //     type: 'data-set',
         //     data: {
         //         language: p_languages[language]
@@ -583,13 +548,12 @@ dmf.createModule('system-server', function(c,config) {
         }
     };
 
-    var scope, session;
+    var session;
 
-    function initialize(sb) {
-        scope = sb.create(c, properties.id);
-    }
+    // function initialize(scope) {
+    // }
 
-    function destroy() {}
+    // function destroy() {}
 
     function request() {
         //TODO - for GET requests
@@ -615,7 +579,7 @@ dmf.createModule('system-server', function(c,config) {
                 c.log(1, ['RESPONSE', result]);
 
                 for (var obj in result) {
-                    scope.notify({
+                    c.notify({
                         type: obj,
                         data: result[obj]
                     });
@@ -639,8 +603,8 @@ dmf.createModule('system-server', function(c,config) {
 
     return {
         properties: properties,
-        initialize: initialize,
-        destroy: destroy
+        // initialize: initialize,
+        // destroy: destroy
     };
 
 });

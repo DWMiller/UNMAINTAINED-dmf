@@ -2,16 +2,15 @@ CORE.createModule('register', function(c) {
     'use strict';
 
     var p_properties = {
-        id: 'register'
+        id: 'register',
+        listeners: {
+            'login.registerResult': registerSuccess,
+            'login.success': loggedIn
+                //failure creates a login.failure event, and this is handled by the login module
+        }
     };
 
     var scope, elements;
-
-    var listeners = {
-        'login.registerResult': registerSuccess,
-        'login.success': loggedIn
-        //failure creates a login.failure event, and this is handled by the login module
-    };
 
     function p_initialize(sb) {
         scope = sb.create(c, p_properties.id, 'form-register');
@@ -40,15 +39,13 @@ CORE.createModule('register', function(c) {
     }
 
     function bindEvents() {
-        scope.listen(listeners);
-
-        scope.addEvent(elements.password_mask, 'click', togglePasswordMask);
-        scope.addEvent(elements.register, 'click', register);
+        c.dom.listen(elements.password_mask, 'click', togglePasswordMask);
+        c.dom.listen(elements.register, 'click', register);
     }
 
     function unbindEvents() {
-        scope.ignore(Object.keys(listeners));
-        scope.removeEvent(elements.register, 'click', register);
+        c.dom.ignore(elements.password_mask, 'click', togglePasswordMask);
+        c.dom.ignore(elements.register, 'click', register);
     }
 
     function register(event) {
@@ -56,7 +53,7 @@ CORE.createModule('register', function(c) {
             event.preventDefault();
         }
 
-        scope.notify({
+        c.notify({
             type: 'server-post',
             data: {
                 'login.register': {
@@ -75,7 +72,7 @@ CORE.createModule('register', function(c) {
         // data.callback_time: 0
         // data.cookie: "a65e8a58626a11b121f5d92ea3b0a6d2"
         // data.player_id: "5836"
-        scope.notify({
+        c.notify({
             type: 'server-post',
             data: {
                 'login.outsmart': {
@@ -94,7 +91,7 @@ CORE.createModule('register', function(c) {
     function loggedIn() {
         //Successfully registration will trigger a login, so wait for login success to stop this module
 
-        scope.notify({
+        c.notify({
             type: 'layout-update',
             data: {
                 type: 'hide',

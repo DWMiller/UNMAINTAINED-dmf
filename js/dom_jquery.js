@@ -10,30 +10,6 @@ dmf.dom = function() {
             }
             return ret;
         },
-        bind: function(element, evt, fn) {
-            console.log('dom.bind is deprecated, use dom.listen');
-            if (element && evt) {
-                if (typeof evt === 'function') {
-                    fn = evt;
-                    evt = 'click';
-                }
-                element.addEventListener(evt, fn)
-            } else {
-                // log wrong arguments
-            }
-        },
-        unbind: function(element, evt, fn) {
-            console.log('dom.unbind is deprecated, use dom.ignore');
-            if (element && evt) {
-                if (typeof evt === 'function') {
-                    fn = evt;
-                    evt = 'click';
-                }
-                element.removeEventListener(evt, fn)
-            } else {
-                // log wrong arguments
-            }
-        },
         listen: function(element, evt, fn) {
             if (element && evt) {
                 if (typeof evt === 'function') {

@@ -49,17 +49,18 @@ var dmf = function() {
             if (typeof moduleID === 'string' && typeof creator === 'function') {
 
                 temp = creator(this);
-                if (temp.initialize && typeof temp.initialize === 'function' && temp.destroy && typeof temp.destroy === 'function') {
-                    temp = null;
-                    moduleData[moduleID] = {
-                        create: creator,
-                        config: this.config[moduleID],
-                        instance: null
-                    };
-                    this.log(1, "Module '" + moduleID + "' Registration : SUCCESS");
-                } else {
-                    this.log(2, "Module '" + moduleID + "' Registration : FAILED : instance has no initialize or destroy functions");
-                }
+                // if (temp.initialize && typeof temp.initialize === 'function' && temp.destroy && typeof temp.destroy === 'function') {
+                temp = null;
+                moduleData[moduleID] = {
+                    create: creator,
+                    config: this.config[moduleID],
+                    instance: null
+                };
+                this.log(1, "Module '" + moduleID + "' Registration : SUCCESS");
+                // } else {
+                //     this.log(2, "Module '" + moduleID + "' Registration : FAILED : instance has no initialize or destroy functions");
+                // }
+
             } else {
                 this.log(2, "Module '" + moduleID + "' Registration : FAILED : one or more arguments are of incorrect type");
             }
@@ -77,7 +78,11 @@ var dmf = function() {
 
             if (mod) {
                 mod.instance = this.getModule(moduleID);
-                mod.instance.initialize(this.Sandbox);
+
+                // Modules do not require an initializing function, use it if exists
+                if (mod.instance.initialize && typeof mod.instance.initialize === 'function') {
+                    mod.instance.initialize(this.Sandbox.create(this, mod.instance.properties));
+                } 
 
                 if (mod.instance.properties.listeners) {
                     this.registerEvents(mod.instance.properties.listeners, moduleID);
@@ -104,8 +109,20 @@ var dmf = function() {
                     this.removeEvents(Object.keys(data.instance.properties.listeners), moduleID);
                 }
 
-                data.instance.destroy();
+                // Modules do not require a destroy function, use it if exists
+                if (data.instance.destroy && typeof data.instance.destroy === 'function') {
+                    data.instance.destroy();
+                } else {
+                    // define scope/sandbox here if initialization function is not present
+                    if (data.instance.scope) {
+                        data.instance.scope = null;
+                    }
+                    // this.dispose(data.instance);
+                }
+
                 data.instance = null;
+                delete data.instance;
+
                 this.log(1, "Stop Module '" + moduleID + "': SUCCESS");
             } else {
                 this.log(2, "Stop Module '" + moduleID + "': FAILED : module does not exist or has not been started");
@@ -198,9 +215,15 @@ var dmf = function() {
             return jQuery.isPlainObject(obj);
         },
         extend: function(targetObject, extendObject) {
-            jQuery.extend(true, targetObject, extendObject);
-
-        }
+                jQuery.extend(true, targetObject, extendObject);
+            }
+            // dispose: function(obj) {
+            //     for (var o in obj)
+            //         if (isNaN(parseInt(o))) {
+            //             this.dispose(obj[o]);
+            //         }
+            //     delete obj; 
+            // }
     };
 }()
 

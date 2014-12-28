@@ -2,16 +2,15 @@ CORE.createModule('demo', function(c) {
     'use strict';
 
     var p_properties = {
-        id: 'demo'
+        id: 'demo',
+        listeners:{
+            'wont-happen': demoFunction,
+            'login.failure': loginFailure,
+            'register.success': login
+        }
     };
 
     var scope, elements;
-
-    var listeners = {
-        'wont-happen': demoFunction,
-        'login.failure': loginFailure,
-        'register.success': login
-    };
 
     function p_initialize(sb) {
         scope = sb.create(c, p_properties.id, 'module-demo');
@@ -34,21 +33,19 @@ CORE.createModule('demo', function(c) {
     }
 
     function demoFunction(somevar) {
-        if(somevar) {
+        if (somevar) {
             alert(somevar);
         }
     }
 
     function bindEvents() {
-        scope.listen(listeners);
-        scope.addEvent(elements.first, 'click', demoFunction(1));
-        scope.addEvent(elements.second, 'click', demoFunction(2));
+        c.dom.listen(elements.first, 'click', demoFunction(1));
+        c.dom.listen(elements.second, 'click', demoFunction(2));
     }
 
     function unbindEvents() {
-        scope.ignore(Object.keys(listeners));
-        scope.removeEvent(elements.first, 'click', demoFunction);
-        scope.removeEvent(elements.second, 'click', demoFunction);        
+        c.dom.ignore(elements.first, 'click', demoFunction);
+        c.dom.ignore(elements.second, 'click', demoFunction);
     }
 
     return {

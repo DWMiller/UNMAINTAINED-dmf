@@ -10,6 +10,12 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 	<script src="dist/dmf.js"></script>
 	<script>
-	CORE.activate();
+    var settings = {
+        //startup: null, // String - controller to run after framework has started
+        container: 'body', // selector of parent container to use for dom interaction, defaults to body
+        debug: true
+    };
+
+    dmf.activate(settings);
 	</script>
 </html>

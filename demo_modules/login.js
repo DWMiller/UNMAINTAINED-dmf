@@ -2,16 +2,15 @@ CORE.createModule('login', function(c) {
     'use strict';
 
     var p_properties = {
-        id: 'login'
+        id: 'login',
+        listeners: {
+            'login.success': loginSuccess,
+            'login.failure': loginFailure,
+            'register.success': login
+        }
     };
 
     var scope, elements;
-
-    var listeners = {
-        'login.success': loginSuccess,
-        'login.failure': loginFailure,
-        'register.success': login
-    };
 
     function p_initialize(sb) {
         scope = sb.create(c, p_properties.id, 'form-login');
@@ -38,18 +37,13 @@ CORE.createModule('login', function(c) {
     }
 
     function bindEvents() {
-        scope.listen(listeners);
-
-        scope.addEvent(elements.login, 'click', login);
-        scope.addEvent(elements.password_mask, 'click', togglePasswordMask);
-
+        c.dom.listen(elements.login, 'click', login);
+        c.dom.listen(elements.password_mask, 'click', togglePasswordMask);
     }
 
     function unbindEvents() {
-        scope.ignore(Object.keys(listeners));
-
-        scope.removeEvent(elements.login, 'click', login);
-        scope.removeEvent(elements.password_mask, 'click', togglePasswordMask);
+        c.dom.ignore(elements.login, 'click', login);
+        c.dom.ignore(elements.password_mask, 'click', togglePasswordMask);
     }
 
     function login(event) {
@@ -57,7 +51,7 @@ CORE.createModule('login', function(c) {
             event.preventDefault();
         }
 
-        scope.notify({
+        c.notify({
             type: 'server-post',
             data: {
                 'login.outsmart': {
@@ -69,7 +63,7 @@ CORE.createModule('login', function(c) {
     }
 
     function loginSuccess(data) {
-        scope.notify({
+        c.notify({
             type: 'data-set',
             data: {
                 user: {
@@ -88,7 +82,7 @@ CORE.createModule('login', function(c) {
         c.dom.addClass(elements.msg, data.type);
         elements.msg.innerHTML = data.message;
 
-        // scope.notify({
+        // c.notify({
         //  type: 'auth-message',
         //  data: data
         // });

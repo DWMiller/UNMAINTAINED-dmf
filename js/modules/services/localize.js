@@ -8,7 +8,7 @@ dmf.createModule('system-localize', function(c, config) {
         }
     };
 
-    var scope, elements;
+    var elements;
 
     var p_languages = {}; // will contain lazy loaded language data
 
@@ -17,14 +17,12 @@ dmf.createModule('system-localize', function(c, config) {
     // var p_data = {}; //will contain localized language data for the currently selected language only
 
 
-    function initialize(sb) {
-        scope = sb.create(c, properties.id);
+    function initialize(scope) {
         language = config.default_language;
         getLanguage();
     }
 
     function destroy() {
-        scope = null;
         elements = {};
     }
 
@@ -58,7 +56,7 @@ dmf.createModule('system-localize', function(c, config) {
             language: p_languages[language]
         });
 
-        // scope.notify({
+        // c.notify({
         //     type: 'data-set',
         //     data: {
         //         language: p_languages[language]

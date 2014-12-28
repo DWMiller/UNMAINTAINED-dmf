@@ -1,0 +1,12 @@
+{
+    "login": "login",
+    "register": "register",
+    "email": "email",
+    "password": "password",
+    "hide_password": "hide password",
+    "logout": "logout",
+    "enter_your_answers_expert": "Enter as many answers as possible before time runs out!",
+    "errors": {
+    	"no_room": "An available room could not be found"
+    }
+}

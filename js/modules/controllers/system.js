@@ -6,18 +6,13 @@ dmf.createModule('system-controller', function(c) {
         listeners: {}
     };
 
-    var scope;
-
-    function initialize(sb) {
-        scope = sb.create(c, properties.id);
-        
+    function initialize(scope) {
         c.startModule('system-server');
         c.startModule('system-data');
         c.startModule('system-localize');
     }
 
     function destroy() {
-        unbindEvents();
         c.stopModule('system-server');
         c.stopModule('system-data');
         c.stopModule('system-localize');

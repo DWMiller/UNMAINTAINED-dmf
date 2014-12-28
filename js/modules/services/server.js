@@ -11,13 +11,12 @@ dmf.createModule('system-server', function(c,config) {
         }
     };
 
-    var scope, session;
+    var session;
 
-    function initialize(sb) {
-        scope = sb.create(c, properties.id);
-    }
+    // function initialize(scope) {
+    // }
 
-    function destroy() {}
+    // function destroy() {}
 
     function request() {
         //TODO - for GET requests
@@ -43,7 +42,7 @@ dmf.createModule('system-server', function(c,config) {
                 c.log(1, ['RESPONSE', result]);
 
                 for (var obj in result) {
-                    scope.notify({
+                    c.notify({
                         type: obj,
                         data: result[obj]
                     });
@@ -67,8 +66,8 @@ dmf.createModule('system-server', function(c,config) {
 
     return {
         properties: properties,
-        initialize: initialize,
-        destroy: destroy
+        // initialize: initialize,
+        // destroy: destroy
     };
 
 });
