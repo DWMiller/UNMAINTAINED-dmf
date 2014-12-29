@@ -13,6 +13,7 @@ var dmf = function() {
         data: {},
         events: {},
         templates: {},
+        classes: {},
         /**
          * Triggers starter logic for all game modules
          * @return {[type]} [description]

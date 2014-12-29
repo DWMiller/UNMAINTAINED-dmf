@@ -10,7 +10,7 @@ dmf.extendConfig({
 	},	
 	'system-localize': {
 		default_language: 'en',
-		path:'js/localization/',
+		path:'assets/localization/',
 		ext: '.lang.json'		
 	}	
 });
