@@ -81,7 +81,7 @@ dmf.createModule('system-localize', function(c, config) {
     function localizeElement(element) {
         var key = element.getAttribute("data-localize");
 
-        var text = p_getLocalizedText(key);
+        var text = getLocalizedText(key);
 
         if (text) {
             switch (element.tagName) {
