@@ -6,4 +6,4 @@ Founded on the examples provided in this tutorial on modular javascript by Andre
 
 Requires jQuery, for now.
 
-Documentation does not exist at this time.
+I'll add some documentation when I'm satisfied that the remaining levels of stupid have been adequately reduced.
