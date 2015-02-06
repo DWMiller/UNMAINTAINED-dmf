@@ -7,15 +7,11 @@ dmf.createModule('system-controller', function(c) {
     };
 
     function initialize(scope) {
-        c.startModule('system-server');
-        c.startModule('system-data');
-        c.startModule('system-localize');
+        c.startModules(['system-server', 'system-data', 'system-localize']);
     }
 
     function destroy() {
-        c.stopModule('system-server');
-        c.stopModule('system-data');
-        c.stopModule('system-localize');
+        c.stopModules(['system-server', 'system-data', 'system-localize']);
     }
 
     return {

@@ -1,4 +1,4 @@
-dmf.createModule('system-server', function(c,config) {
+dmf.createModule('system-server', function(c, config) {
     'use strict';
 
     var properties = {

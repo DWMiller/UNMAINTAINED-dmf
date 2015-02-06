@@ -14,6 +14,7 @@ var dmf = function() {
         events: {},
         templates: {},
         classes: {},
+        fn: {},
         /**
          * Triggers starter logic for all game modules
          * @return {[type]} [description]
@@ -43,25 +44,18 @@ var dmf = function() {
             }
         },
         extendConfig: function(moduleConfig) {
-            $.extend(true, this.config, moduleConfig);
+            this.extend(this.config, moduleConfig);
         },
         createModule: function(moduleID, creator) {
-            var temp;
             if (typeof moduleID === 'string' && typeof creator === 'function') {
 
-                temp = creator(this);
-                // if (temp.initialize && typeof temp.initialize === 'function' && temp.destroy && typeof temp.destroy === 'function') {
-                temp = null;
                 moduleData[moduleID] = {
                     create: creator,
                     config: this.config[moduleID],
                     instance: null
                 };
-                this.log(1, "Module '" + moduleID + "' Registration : SUCCESS");
-                // } else {
-                //     this.log(2, "Module '" + moduleID + "' Registration : FAILED : instance has no initialize or destroy functions");
-                // }
 
+                this.log(1, "Module '" + moduleID + "' Registration : SUCCESS");
             } else {
                 this.log(2, "Module '" + moduleID + "' Registration : FAILED : one or more arguments are of incorrect type");
             }
@@ -83,15 +77,22 @@ var dmf = function() {
                 // Modules do not require an initializing function, use it if exists
                 if (mod.instance.initialize && typeof mod.instance.initialize === 'function') {
                     mod.instance.initialize(this.Sandbox.create(this, mod.instance.properties));
-                } 
+                }
 
                 if (mod.instance.properties.listeners) {
                     this.registerEvents(mod.instance.properties.listeners, moduleID);
-                    console.log("Events Registered - " + moduleID)
                 }
 
                 this.log(1, "Start Module '" + moduleID + "': SUCCESS");
             }
+        },
+        /**
+         * Starts multiple modules
+         * @param  {String[]} modules An array of the module ids to start
+         * @return {[type]}         [description]
+         */
+        startModules: function(modules) {
+            modules.forEach(this.startModule, this);
         },
         startAllModules: function() {
             var moduleID;
@@ -102,32 +103,31 @@ var dmf = function() {
             }
         },
         stopModule: function(moduleID) {
-            var data;
-            if ((data = moduleData[moduleID]) && data.instance) {
+            var data = moduleData[moduleID];
 
-                if (data.instance.properties.listeners) {
-                    console.log("Events Ignored - " + moduleID)
-                    this.removeEvents(Object.keys(data.instance.properties.listeners), moduleID);
-                }
-
-                // Modules do not require a destroy function, use it if exists
-                if (data.instance.destroy && typeof data.instance.destroy === 'function') {
-                    data.instance.destroy();
-                } else {
-                    // define scope/sandbox here if initialization function is not present
-                    if (data.instance.scope) {
-                        data.instance.scope = null;
-                    }
-                    // this.dispose(data.instance);
-                }
-
-                data.instance = null;
-                delete data.instance;
-
-                this.log(1, "Stop Module '" + moduleID + "': SUCCESS");
-            } else {
+            if (!data || !data.instance) {
                 this.log(2, "Stop Module '" + moduleID + "': FAILED : module does not exist or has not been started");
+                return;
             }
+
+
+            if (data.instance.properties.listeners) {
+                this.removeEvents(Object.keys(data.instance.properties.listeners), moduleID);
+            }
+
+            // Modules do not require a destroy function, use it if exists
+            if (data.instance.destroy && typeof data.instance.destroy === 'function') {
+                data.instance.destroy();
+            }
+
+            data.instance = null;
+            delete data.instance;
+
+            this.log(1, "Stop Module '" + moduleID + "': SUCCESS");
+
+        },
+        stopModules: function(modules) {
+            modules.forEach(this.stopModule, this);
         },
         stopAllModules: function() {
             var moduleID;
@@ -137,44 +137,45 @@ var dmf = function() {
                 }
             }
         },
-        registerEvents: function(evts, mod) {
-            if (this.is_obj(evts) && mod) {
-                for (var eventKey in evts) {
-                    if (!this.events[eventKey]) {
-                        this.events[eventKey] = {};
-                    }
-                    this.events[eventKey][mod] = evts[eventKey];
+        /**
+         * Binds framework events to a module
+         * @param  {[type]} evts Object containing event/function pairs to bind
+         * @param  {string} mod  [description]
+         * @return {[type]}      [description]
+         */
+        registerEvents: function(evts, moduleId) {
+            if (!this.is_obj(evts) || !moduleId) {
+                this.log(1, "Error registering events for: " + moduleId);
+            }
+
+            for (var eventKey in evts) {
+                // Add event to event list if not yet added
+                if (!this.events[eventKey]) {
+                    this.events[eventKey] = {};
                 }
-            } else {
-                this.log(1, "Error registering events for: " + mod);
-            }
-        },
-        notify: function(evt) {
-            if (this.is_obj(evt) && evt.type) {
-                this.triggerEvent(evt);
-            }
-        },
-        //listen & ignore should be here, but moduleID is not available and would need to be passed from the module
-        // listen: function(evts) {
-        //     this.registerEvents(evts, moduleID);
-        // },
-        // ignore: function(evts) {
-        //     if (!this.is_arr(evts)) {
-        //         var e = evts;
-        //         evts = [e];
-        //     }
 
-        // this.removeEvents(evts, moduleID);
-        // },
+                this.events[eventKey][moduleId] = evts[eventKey];
+            }
 
-        triggerEvent: function(evt) {
-            var bindings = this.events[evt.type];
+        },
+        notify: function(event) {
+            // Allows shorthand, trigged via event name only without requiring data
+            if (typeof event === 'string') {
+                event = {
+                    type: event,
+                    data: {}
+                };
+            }
+
+            var bindings = this.events[event.type];
+
             if (!bindings) {
                 return;
             }
 
-            for (var binding in bindings) {
-                bindings[binding](evt.data);
+            var moduleId;
+            for (moduleId in bindings) {
+                bindings[moduleId](event.data);
             }
         },
         /**
@@ -184,30 +185,26 @@ var dmf = function() {
          * @return {[type]}      [description]
          */
         removeEvents: function(evts, mod) {
+            // Should be a named function, but mod would not be available
             evts.forEach(function(event, index, array) {
                 delete dmf.events[event][mod];
             });
         },
-        log: function(severity, message) {
-            if (debug) {
 
-                if (!this.is_arr(message)) {
-                    message = [message];
-                }
-
-                for (var i = 0; i < message.length; i++) {
-                    console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](JSON.stringify(message[i], null, 4));
-                };
+        log: function(severity, messages) {
+            if (!debug) {
+                return;
             }
-        },
-        changeLanguage: function(lang) {
-            var event = {
-                type: 'language-change',
-                data: {
-                    language: lang
-                }
+
+            // If message is not an array, make it an array so we can traverse it
+            if (!this.is_arr(messages)) {
+                messages = [messages];
+            }
+
+            for (var i = 0; i < messages.length; i++) {
+                console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](JSON.stringify(messages[i], null, 4));
             };
-            this.triggerEvent(event);
+
         },
         is_arr: function(arr) {
             return jQuery.isArray(arr);
@@ -216,15 +213,8 @@ var dmf = function() {
             return jQuery.isPlainObject(obj);
         },
         extend: function(targetObject, extendObject) {
-                jQuery.extend(true, targetObject, extendObject);
-            }
-            // dispose: function(obj) {
-            //     for (var o in obj)
-            //         if (isNaN(parseInt(o))) {
-            //             this.dispose(obj[o]);
-            //         }
-            //     delete obj; 
-            // }
+            jQuery.extend(true, targetObject, extendObject);
+        }
     };
 }()
 

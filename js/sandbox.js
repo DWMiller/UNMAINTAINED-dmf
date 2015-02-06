@@ -7,12 +7,15 @@ dmf.Sandbox = {
         var CONTAINER = document.getElementById(module_selector) || core.container;
         return {
             self: function() {
+                core.log(2,'Sandbox:self() deprecated, sandbox being removed');
                 return CONTAINER;
             },
             find: function(selector) {
+                core.log(2,'Sandbox:find() deprecated, sandbox being removed');
                 return core.dom.find(selector, CONTAINER);
             },            
             hide: function(element) {
+                core.log(2,'Sandbox:hide() deprecated, sandbox being removed');
                 if (typeof element === 'undefined') {
                     element = CONTAINER;
                 }
@@ -21,6 +24,7 @@ dmf.Sandbox = {
                 core.dom.addClass(element, 'hidden');
             },
             show: function(element) {
+                core.log(2,'Sandbox:show() deprecated, sandbox being removed');
                 if (typeof element === 'undefined') {
                     element = CONTAINER;
                 }
