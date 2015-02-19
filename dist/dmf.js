@@ -333,6 +333,7 @@ dmf.Sandbox = {
 dmf.extendConfig({
 	'system-server': {
 		endpoint: 'http://127.0.0.1:8080/',
+		timeout: 7000
 	},	
 	'system-localize': {
 		default_language: 'en',
@@ -569,6 +570,7 @@ dmf.createModule('system-server', function(c, config) {
 
         var settings = {
             url: config.endpoint,
+            timeout: config.timeout,
             data: JSON.stringify(data),
             type: 'POST',
             dataType: 'json',
@@ -585,9 +587,19 @@ dmf.createModule('system-server', function(c, config) {
                         data: result[obj]
                     });
                 }
+
+                c.notify({
+                    type: 'server-response',
+                    data: result
+                });   
             })
-            .fail(function() {
+            .fail(function(fail) {
                 //console.log("error");
+                c.notify({
+                    type: 'server-fail',
+                    data: fail
+                });                
+                
             })
             .always(function(result) {
                 // console.log("complete");
