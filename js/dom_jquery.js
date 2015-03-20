@@ -10,6 +10,14 @@ dmf.dom = function() {
             }
             return ret;
         },
+        hide: function(element) {
+                dmf.dom.addClass(element, 'visible');
+                dmf.dom.removeClass(element, 'hidden');
+        },
+        show: function(element) {
+                dmf.dom.addClass(element, 'visible');
+                dmf.dom.removeClass(element, 'hidden');
+        },
         listen: function(element, evt, fn) {
             if (element && evt) {
                 if (typeof evt === 'function') {
