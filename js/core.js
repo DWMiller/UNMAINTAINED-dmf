@@ -74,7 +74,7 @@ var dmf = function() {
 
                 // Modules do not require an initializing function, use it if exists
                 if (mod.instance.initialize && typeof mod.instance.initialize === 'function') {
-                    mod.instance.initialize(this.Sandbox.create(this, mod.instance.properties));
+                    mod.instance.initialize(/*this.Sandbox.create(this, mod.instance.properties)*/);
                 }
 
                 if (mod.instance.properties.listeners) {
