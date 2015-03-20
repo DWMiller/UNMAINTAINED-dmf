@@ -30,8 +30,6 @@ var dmf = function() {
                 this.container = document.querySelector('body');
             }
 
-            this.startModule('system-controller');
-
             if (typeof settings.startup !== 'undefined') {
                 this.startModule(settings.startup);
             }
