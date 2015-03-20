@@ -3,13 +3,12 @@
  */
 var dmf = function() {
     'use strict';
-    var moduleData = {}
+    var moduleData = {};
     var debug = false;
 
     return {
         classes: {},
         config: {},
-        container: null,
         data: {},
         events: {},
         fn: {},
@@ -23,12 +22,6 @@ var dmf = function() {
         activate: function(settings) {
             if (typeof settings.debug !== 'undefined') {
                 this.debug(settings.debug);
-            }
-
-            if (typeof settings.container !== 'undefined') {
-                this.container = document.querySelector(settings.container);
-            } else {
-                this.container = document.querySelector('body');
             }
 
             if (typeof settings.startup !== 'undefined') {
@@ -75,7 +68,7 @@ var dmf = function() {
 
                 // Modules do not require an initializing function, use it if exists
                 if (mod.instance.initialize && typeof mod.instance.initialize === 'function') {
-                    mod.instance.initialize(/*this.Sandbox.create(this, mod.instance.properties)*/);
+                    mod.instance.initialize();
                 }
 
                 if (mod.instance.properties.listeners) {
@@ -202,7 +195,7 @@ var dmf = function() {
 
             for (var i = 0; i < messages.length; i++) {
                 console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](JSON.stringify(messages[i], null, 4));
-            };
+            }
 
         },
         is_arr: function(arr) {
@@ -215,7 +208,7 @@ var dmf = function() {
             jQuery.extend(true, targetObject, extendObject);
         }
     };
-}()
+}();
 
 //Deprecated namespace usage, delete in future versions
 var CORE = dmf;

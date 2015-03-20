@@ -9,5 +9,5 @@ module.exports = {
             app: true,
         },
     },
-    files: ['js/config/**/*.js', 'js/modules/**/*.js']
+    files: ['js/**/*.js']
 }

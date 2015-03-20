@@ -3,13 +3,12 @@
  */
 var dmf = function() {
     'use strict';
-    var moduleData = {}
+    var moduleData = {};
     var debug = false;
 
     return {
         classes: {},
         config: {},
-        container: null,
         data: {},
         events: {},
         fn: {},
@@ -23,12 +22,6 @@ var dmf = function() {
         activate: function(settings) {
             if (typeof settings.debug !== 'undefined') {
                 this.debug(settings.debug);
-            }
-
-            if (typeof settings.container !== 'undefined') {
-                this.container = document.querySelector(settings.container);
-            } else {
-                this.container = document.querySelector('body');
             }
 
             if (typeof settings.startup !== 'undefined') {
@@ -75,7 +68,7 @@ var dmf = function() {
 
                 // Modules do not require an initializing function, use it if exists
                 if (mod.instance.initialize && typeof mod.instance.initialize === 'function') {
-                    mod.instance.initialize(/*this.Sandbox.create(this, mod.instance.properties)*/);
+                    mod.instance.initialize();
                 }
 
                 if (mod.instance.properties.listeners) {
@@ -202,7 +195,7 @@ var dmf = function() {
 
             for (var i = 0; i < messages.length; i++) {
                 console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](JSON.stringify(messages[i], null, 4));
-            };
+            }
 
         },
         is_arr: function(arr) {
@@ -215,12 +208,13 @@ var dmf = function() {
             jQuery.extend(true, targetObject, extendObject);
         }
     };
-}()
+}();
 
 //Deprecated namespace usage, delete in future versions
 var CORE = dmf;
 
 dmf.dom = function() {
+    'use strict';
     return {
         find: function(selector, context) {
             var ret = {};
@@ -246,7 +240,7 @@ dmf.dom = function() {
                     fn = evt;
                     evt = 'click';
                 }
-                element.addEventListener(evt, fn)
+                element.addEventListener(evt, fn);
             } else {
                 // log wrong arguments
             }
@@ -257,7 +251,7 @@ dmf.dom = function() {
                     fn = evt;
                     evt = 'click';
                 }
-                element.removeEventListener(evt, fn)
+                element.removeEventListener(evt, fn);
             } else {
                 // log wrong arguments
             }
@@ -291,43 +285,5 @@ dmf.dom = function() {
 
             element.append(toAppend);
         }
-    }
+    };
 }();
-
-dmf.Sandbox = {
-    create: function(core, moduleProperties) {
-        var moduleID = moduleProperties.id || null;
-        var module_selector = moduleProperties.selector || null
- 
-        //Should allow any selector rather than only IDs, but will break existing modules
-        var CONTAINER = document.getElementById(module_selector) || core.container;
-        return {
-            self: function() {
-                core.log(2,'Sandbox:self() deprecated, sandbox being removed');
-                return CONTAINER;
-            },
-            find: function(selector) {
-                core.log(2,'Sandbox:find() deprecated, sandbox being removed');
-                return core.dom.find(selector, CONTAINER);
-            },            
-            hide: function(element) {
-                core.log(2,'Sandbox:hide() deprecated, sandbox being removed');
-                if (typeof element === 'undefined') {
-                    element = CONTAINER;
-                }
-
-                core.dom.removeClass(element, 'visible');
-                core.dom.addClass(element, 'hidden');
-            },
-            show: function(element) {
-                core.log(2,'Sandbox:show() deprecated, sandbox being removed');
-                if (typeof element === 'undefined') {
-                    element = CONTAINER;
-                }
-
-                core.dom.addClass(element, 'visible');
-                core.dom.removeClass(element, 'hidden');
-            }
-        };
-    }
-}

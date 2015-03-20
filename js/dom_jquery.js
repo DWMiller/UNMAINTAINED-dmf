@@ -1,4 +1,5 @@
 dmf.dom = function() {
+    'use strict';
     return {
         find: function(selector, context) {
             var ret = {};
@@ -24,7 +25,7 @@ dmf.dom = function() {
                     fn = evt;
                     evt = 'click';
                 }
-                element.addEventListener(evt, fn)
+                element.addEventListener(evt, fn);
             } else {
                 // log wrong arguments
             }
@@ -35,7 +36,7 @@ dmf.dom = function() {
                     fn = evt;
                     evt = 'click';
                 }
-                element.removeEventListener(evt, fn)
+                element.removeEventListener(evt, fn);
             } else {
                 // log wrong arguments
             }
@@ -69,5 +70,5 @@ dmf.dom = function() {
 
             element.append(toAppend);
         }
-    }
+    };
 }();
