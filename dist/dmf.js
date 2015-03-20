@@ -7,14 +7,15 @@ var dmf = function() {
     var debug = false;
 
     return {
-        container: null,
-        modules: moduleData,
+        classes: {},
         config: {},
+        container: null,
         data: {},
         events: {},
-        templates: {},
-        classes: {},
         fn: {},
+        modules: moduleData,
+        settings: {},
+        templates: {},
         /**
          * Triggers starter logic for all game modules
          * @return {[type]} [description]
