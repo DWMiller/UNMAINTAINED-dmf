@@ -1,6 +1,6 @@
 {
   "name": "dmf",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "author": {
     "name": "David Miller",
     "email": "david.miller8@mohawkcollege.ca"
@@ -14,11 +14,9 @@
     "grunt-bower-task": "^0.4.0",
     "grunt-concurrent": "^0.5.0",
     "grunt-contrib-concat": "^0.4.0",
-    "grunt-contrib-copy": "^0.5.0",
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-uglify": "^0.4.0",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-newer": "^0.7.0",
     "grunt-version": "^0.3.1",
     "grunt-write-bower-json": "0.0.1",
     "jshint-stylish": "^0.4.0",

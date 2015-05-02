@@ -1,6 +1,6 @@
 {
   "name": "dmf",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "main": "dist/dmf.js",
   "ignore": [
     "app",
@@ -12,8 +12,6 @@
     "main.js",
     "package.json"
   ],
-  "dependencies": {
-    "jquery": ">= 2.1.3"
-  },
+  "dependencies": {},
   "devDependencies": {}
 }
