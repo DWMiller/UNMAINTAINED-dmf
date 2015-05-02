@@ -35,9 +35,6 @@ var dmf = function() {
                 debug = !debug;
             }
         },
-        extendConfig: function(moduleConfig) {
-            this.extend(this.config, moduleConfig);
-        },
         createModule: function(moduleID, creator) {
             if (typeof moduleID === 'string' && typeof creator === 'function') {
 
