@@ -198,17 +198,18 @@ var dmf = function() {
             }
 
         },
-        is_arr: function(arr) {
-            return jQuery.isArray(arr);
+        is_arr: function(obj) {
+            return toString.call(obj) == '[object Array]';
         },
         is_obj: function(obj) {
-            return jQuery.isPlainObject(obj);
+            return obj === Object(obj);
         },
-        extend: function(targetObject, extendObject) {
-            jQuery.extend(true, targetObject, extendObject);
+        extend: function() {
+            for (var i = 1; i < arguments.length; i++)
+                for (var key in arguments[i])
+                    if (arguments[i].hasOwnProperty(key))
+                        arguments[0][key] = arguments[i][key];
+            return arguments[0];
         }
     };
 }();
-
-//Deprecated namespace usage, delete in future versions
-var CORE = dmf;
