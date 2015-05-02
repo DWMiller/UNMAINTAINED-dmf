@@ -35,9 +35,6 @@ var dmf = function() {
                 debug = !debug;
             }
         },
-        extendConfig: function(moduleConfig) {
-            this.extend(this.config, moduleConfig);
-        },
         createModule: function(moduleID, creator) {
             if (typeof moduleID === 'string' && typeof creator === 'function') {
 
@@ -151,8 +148,15 @@ var dmf = function() {
 
         },
         notify: function(event) {
-            // Allows shorthand, trigged via event name only without requiring data
-            if (typeof event === 'string') {
+
+            if (arguments.length == 2) {
+                // Allows seperate name and data parameter, useful for primitive types data
+                event = {
+                    type: arguments[0],
+                    data: arguments[1]
+                };
+            } else if (typeof event === 'string') {
+                // Allows shorthand, trigged via event name only without requiring data
                 event = {
                     type: event,
                     data: {}
@@ -198,17 +202,18 @@ var dmf = function() {
             }
 
         },
-        is_arr: function(arr) {
-            return jQuery.isArray(arr);
+        is_arr: function(obj) {
+            return toString.call(obj) == '[object Array]';
         },
         is_obj: function(obj) {
-            return jQuery.isPlainObject(obj);
+            return obj === Object(obj);
         },
-        extend: function(targetObject, extendObject) {
-            jQuery.extend(true, targetObject, extendObject);
+        extend: function() {
+            for (var i = 1; i < arguments.length; i++)
+                for (var key in arguments[i])
+                    if (arguments[i].hasOwnProperty(key))
+                        arguments[0][key] = arguments[i][key];
+            return arguments[0];
         }
     };
 }();
-
-//Deprecated namespace usage, delete in future versions
-var CORE = dmf;

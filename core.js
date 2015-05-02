@@ -26,6 +26,8 @@ var dmf = function() {
 
             if (typeof settings.startup !== 'undefined') {
                 this.startModule(settings.startup);
+            } else {
+                this.log(3, 'A startup module has not been specified')
             }
         },
         debug: function(on) {
@@ -148,8 +150,15 @@ var dmf = function() {
 
         },
         notify: function(event) {
-            // Allows shorthand, trigged via event name only without requiring data
-            if (typeof event === 'string') {
+
+            if (arguments.length == 2) {
+                // Allows seperate name and data parameter, useful for primitive types data
+                event = {
+                    type: arguments[0],
+                    data: arguments[1]
+                };
+            } else if (typeof event === 'string') {
+                // Allows shorthand, trigged via event name only without requiring data
                 event = {
                     type: event,
                     data: {}
