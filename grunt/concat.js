@@ -1,8 +1,7 @@
 module.exports = {
     js: {
         src: [
-            'js/core.js',
-            'js/dom_jquery.js'
+            'core.js',
         ],
         dest: 'dist/dmf.js',
     }

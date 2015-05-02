@@ -1,5 +1,6 @@
 module.exports = {
-  first: ['newer:jshint'],
-  second:['newer:concat'],
-  third: ['newer:uglify','version'],
+    first: ['jshint','writeBowerJson'],
+    second: ['concat'],
+    third: ['uglify'],
+    fourth: ['version']
 };

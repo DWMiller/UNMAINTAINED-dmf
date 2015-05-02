@@ -9,5 +9,5 @@ module.exports = {
             app: true,
         },
     },
-    files: ['js/**/*.js']
+    files: ['dmf.js']
 }

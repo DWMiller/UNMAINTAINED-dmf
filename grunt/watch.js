@@ -1,7 +1,8 @@
 module.exports = {
 	js: {
-		files: ['js/**/*'],
-		tasks: ['newer:jshint', 'newer:concat', 'newer:uglify','version']
+		// files: ['js/**/*'],
+		files: ['dmf.js'],
+		tasks: ['concurrent']
 	},
 	grunt: {
 		files: ['grunt/**/*'],
