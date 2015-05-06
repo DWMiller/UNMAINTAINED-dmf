@@ -1,7 +1,9 @@
 module.exports = {
     js: {
         src: [
-            'core.js',
+            'js/core.js',
+            'js/functions.js'
+
         ],
         dest: 'dist/dmf.js',
     }

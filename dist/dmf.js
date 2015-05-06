@@ -1,17 +1,17 @@
-/**
- * [CORE description]
- */
 var dmf = function() {
     'use strict';
     var moduleData = {};
-    var debug = false;
+
+    var default_settings = {
+        debug: false,
+        startup: null
+    }
 
     return {
         classes: {},
         config: {},
         data: {},
         events: {},
-        fn: {},
         modules: moduleData,
         settings: {},
         templates: {},
@@ -20,20 +20,22 @@ var dmf = function() {
          * @return {[type]} [description]
          */
         activate: function(settings) {
-            if (typeof settings.debug !== 'undefined') {
-                this.debug(settings.debug);
+            this.settings = this.fn.extend(default_settings, settings);
+
+            if (!this.settings.startup) {
+                this.log(3, 'A startup module has not been specified')
+                return false;
             }
 
-            if (typeof settings.startup !== 'undefined') {
-                this.startModule(settings.startup);
-            }
+            return this.startModule(settings.startup);
         },
         debug: function(on) {
-            if (on !== 'undefined') {
-                debug = on ? true : false;
-            } else {
-                debug = !debug;
+            if (typeof on == 'undefined') {
+                this.debug = !this.debug;
+                return;
             }
+
+            this.debug = on ? true : false;
         },
         createModule: function(moduleID, creator) {
             if (typeof moduleID === 'string' && typeof creator === 'function') {
@@ -60,20 +62,32 @@ var dmf = function() {
         startModule: function(moduleID) {
             var mod = moduleData[moduleID];
 
-            if (mod) {
-                mod.instance = this.getModule(moduleID);
-
-                // Modules do not require an initializing function, use it if exists
-                if (mod.instance.initialize && typeof mod.instance.initialize === 'function') {
-                    mod.instance.initialize();
-                }
-
-                if (mod.instance.properties.listeners) {
-                    this.registerEvents(mod.instance.properties.listeners, moduleID);
-                }
-
-                this.log(1, "Start Module '" + moduleID + "': SUCCESS");
+            if (!mod) {
+                this.log(2, "Could not start module: " + moduleID + ". Module does not exist");
+                return false;
             }
+
+            mod.instance = this.getModule(moduleID);
+
+            if (!mod.instance.properties) {
+                // Modules do not have to contain a properties object, but the framework will create one
+                mod.instance.properties = {
+                    id: moduleID
+                }
+            }
+
+            // Modules do not require an initializing function, use it if exists
+            if (mod.instance.initialize && typeof mod.instance.initialize === 'function') {
+                mod.instance.initialize();
+            }
+
+            if (mod.instance.properties.listeners) {
+                this.registerEvents(mod.instance.properties.listeners, moduleID);
+            }
+
+            this.log(1, "Start module '" + moduleID + "': SUCCESS");
+
+            return mod.instance;
         },
         /**
          * Starts multiple modules
@@ -94,11 +108,13 @@ var dmf = function() {
         stopModule: function(moduleID) {
             var data = moduleData[moduleID];
 
-            if (!data || !data.instance) {
-                this.log(2, "Stop Module '" + moduleID + "': FAILED : module does not exist or has not been started");
-                return;
+            if (!data) {
+                this.log(2, "Stop Module '" + moduleID + "': FAILED : module does not exist");
+                return false;
+            } else if (!data.instance) {
+                this.log(2, "Stop Module '" + moduleID + "': FAILED : module has not been started");
+                return false;
             }
-
 
             if (data.instance.properties.listeners) {
                 this.removeEvents(Object.keys(data.instance.properties.listeners), moduleID);
@@ -114,6 +130,7 @@ var dmf = function() {
 
             this.log(1, "Stop Module '" + moduleID + "': SUCCESS");
 
+            return true;
         },
         stopModules: function(modules) {
             modules.forEach(this.stopModule, this);
@@ -133,7 +150,10 @@ var dmf = function() {
          * @return {[type]}      [description]
          */
         registerEvents: function(evts, moduleId) {
-            if (!this.is_obj(evts) || !moduleId) {
+            // Currently only called via startModule, so modules existance 
+            // does not need to be validated here
+
+            if (!this.fn.is_obj(evts)) {
                 this.log(1, "Error registering events for: " + moduleId);
             }
 
@@ -147,6 +167,9 @@ var dmf = function() {
             }
 
         },
+        /**
+         * Sends events to each listening module
+         */
         notify: function(event) {
 
             if (arguments.length == 2) {
@@ -176,9 +199,6 @@ var dmf = function() {
         },
         /**
          * Unsubscribes a single module from a set of events
-         * @param  {[type]} evts [description]
-         * @param  {[type]} mod  [description]
-         * @return {[type]}      [description]
          */
         removeEvents: function(evts, mod) {
             // Should be a named function, but mod would not be available
@@ -188,32 +208,34 @@ var dmf = function() {
         },
 
         log: function(severity, messages) {
-            if (!debug) {
+            if (!this.settings.debug) {
                 return;
             }
 
             // If message is not an array, make it an array so we can traverse it
-            if (!this.is_arr(messages)) {
+            if (!this.fn.is_arr(messages)) {
                 messages = [messages];
             }
 
             for (var i = 0; i < messages.length; i++) {
                 console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](JSON.stringify(messages[i], null, 4));
             }
-
         },
-        is_arr: function(obj) {
-            return toString.call(obj) == '[object Array]';
-        },
-        is_obj: function(obj) {
-            return obj === Object(obj);
-        },
-        extend: function() {
-            for (var i = 1; i < arguments.length; i++)
-                for (var key in arguments[i])
-                    if (arguments[i].hasOwnProperty(key))
-                        arguments[0][key] = arguments[i][key];
-            return arguments[0];
-        }
     };
 }();
+
+dmf.fn = {
+    is_arr: function(obj) {
+        return toString.call(obj) == '[object Array]';
+    },
+    is_obj: function(obj) {
+        return obj === Object(obj);
+    },
+    extend: function() {
+        for (var i = 1; i < arguments.length; i++)
+            for (var key in arguments[i])
+                if (arguments[i].hasOwnProperty(key))
+                    arguments[0][key] = arguments[i][key];
+        return arguments[0];
+    }
+};
