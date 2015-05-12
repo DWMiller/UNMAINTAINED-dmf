@@ -1,0 +1,12 @@
+{
+	"folders":
+	[
+		{
+			"path": "."
+		}
+	],
+	"ternjs": {
+			"exclude": ["dist/**","node_modules/**"],
+			"libs": ["browser", "jquery"]
+	}
+}
