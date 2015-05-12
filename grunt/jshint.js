@@ -1,13 +1,15 @@
 module.exports = {
     options: {
         reporter: require('jshint-stylish'),
+        bitwise:true,
         browser: true,
-        devel:true,
+        curly: true,
+        eqeqeq: true,
         strict: true,
         globals: {
-            $: true,
-            app: true,
+            // app: true,
         },
     },
-    files: ['dmf.js']
+    // files: ['dmf.js']
+    files: ['js/**/*']
 }
