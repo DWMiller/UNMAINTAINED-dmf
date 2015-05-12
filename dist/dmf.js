@@ -5,7 +5,7 @@ var dmf = function() {
     var default_settings = {
         debug: false,
         startup: null
-    }
+    };
 
     return {
         classes: {},
@@ -22,15 +22,10 @@ var dmf = function() {
         activate: function(settings) {
             this.settings = this.fn.extend(default_settings, settings);
 
-            if (!this.settings.startup) {
-                this.log(3, 'A startup module has not been specified')
-                return false;
-            }
-
             return this.startModule(settings.startup);
         },
         debug: function(on) {
-            if (typeof on == 'undefined') {
+            if (typeof on === 'undefined') {
                 this.debug = !this.debug;
                 return;
             }
@@ -38,32 +33,24 @@ var dmf = function() {
             this.debug = on ? true : false;
         },
         createModule: function(moduleID, creator) {
-            if (typeof moduleID === 'string' && typeof creator === 'function') {
-
-                moduleData[moduleID] = {
-                    create: creator,
-                    config: this.config[moduleID],
-                    instance: null
-                };
-
-                this.log(1, "Module '" + moduleID + "' Registration : SUCCESS");
-            } else {
-                this.log(2, "Module '" + moduleID + "' Registration : FAILED : one or more arguments are of incorrect type");
-            }
+            moduleData[moduleID] = {
+                create: creator,
+                config: this.config[moduleID],
+                instance: null
+            };
         },
         getModule: function(moduleID) {
             var mod = moduleData[moduleID];
-            if (mod) {
-                return mod.create(this, mod.config);
-            } else {
+            if (!mod) {
                 return false;
+
             }
+            return mod.create(this, mod.config);
         },
         startModule: function(moduleID) {
             var mod = moduleData[moduleID];
 
             if (!mod) {
-                this.log(2, "Could not start module: " + moduleID + ". Module does not exist");
                 return false;
             }
 
@@ -73,19 +60,17 @@ var dmf = function() {
                 // Modules do not have to contain a properties object, but the framework will create one
                 mod.instance.properties = {
                     id: moduleID
-                }
+                };
             }
 
             // Modules do not require an initializing function, use it if exists
-            if (mod.instance.initialize && typeof mod.instance.initialize === 'function') {
+            if (mod.instance.initialize) {
                 mod.instance.initialize();
             }
 
             if (mod.instance.properties.listeners) {
                 this.registerEvents(mod.instance.properties.listeners, moduleID);
             }
-
-            this.log(1, "Start module '" + moduleID + "': SUCCESS");
 
             return mod.instance;
         },
@@ -109,10 +94,10 @@ var dmf = function() {
             var data = moduleData[moduleID];
 
             if (!data) {
-                this.log(2, "Stop Module '" + moduleID + "': FAILED : module does not exist");
+                //module does not exist
                 return false;
             } else if (!data.instance) {
-                this.log(2, "Stop Module '" + moduleID + "': FAILED : module has not been started");
+                //module has not been started
                 return false;
             }
 
@@ -127,8 +112,6 @@ var dmf = function() {
 
             data.instance = null;
             delete data.instance;
-
-            this.log(1, "Stop Module '" + moduleID + "': SUCCESS");
 
             return true;
         },
@@ -153,10 +136,6 @@ var dmf = function() {
             // Currently only called via startModule, so modules existance 
             // does not need to be validated here
 
-            if (!this.fn.is_obj(evts)) {
-                this.log(1, "Error registering events for: " + moduleId);
-            }
-
             for (var eventKey in evts) {
                 // Add event to event list if not yet added
                 if (!this.events[eventKey]) {
@@ -172,7 +151,7 @@ var dmf = function() {
          */
         notify: function(event) {
 
-            if (arguments.length == 2) {
+            if (arguments.length === 2) {
                 // Allows seperate name and data parameter, useful for primitive types data
                 event = {
                     type: arguments[0],
@@ -208,34 +187,31 @@ var dmf = function() {
         },
 
         log: function(severity, messages) {
-            if (!this.settings.debug) {
-                return;
-            }
+            console.warn('dmf.log is deprectated, use logging module');
 
-            // If message is not an array, make it an array so we can traverse it
-            if (!this.fn.is_arr(messages)) {
-                messages = [messages];
-            }
-
-            for (var i = 0; i < messages.length; i++) {
-                console[(severity === 1) ? 'log' : (severity === 2) ? 'warn' : 'error'](JSON.stringify(messages[i], null, 4));
-            }
+            this.notify('log', {
+                'severity': severity,
+                'messages': messages
+            });
         },
     };
 }();
 
-dmf.fn = {
-    is_arr: function(obj) {
-        return toString.call(obj) == '[object Array]';
-    },
-    is_obj: function(obj) {
-        return obj === Object(obj);
-    },
-    extend: function() {
-        for (var i = 1; i < arguments.length; i++)
-            for (var key in arguments[i])
-                if (arguments[i].hasOwnProperty(key))
-                    arguments[0][key] = arguments[i][key];
-        return arguments[0];
-    }
-};
+(function() {
+    'use strict';
+    dmf.fn = {
+        is_arr: function(obj) {
+            return obj.constructor === Array;
+        },
+        extend: function() {
+            for (var i = 1; i < arguments.length; i++) {
+                for (var key in arguments[i]) {
+                    if (arguments[i].hasOwnProperty(key)) {
+                        arguments[0][key] = arguments[i][key];
+                    }
+                }
+            }
+            return arguments[0];
+        }
+    };
+})();
