@@ -1,78 +1,61 @@
 var dmf = function() {
     'use strict';
-    var moduleData = {};
 
     var default_settings = {
-        debug: false,
         startup: null
     };
 
     return {
-        classes: {},
         config: {},
         data: {},
-        events: {},
-        modules: moduleData,
+        factories: null, // populated by factories.js 
+        fn: null, // populated by functions.js
+        events: {}, // used to map framework event-module bindings
+        modules: {},
         settings: {},
-        templates: {},
         /**
          * Triggers starter logic for all game modules
          * @return {[type]} [description]
          */
         activate: function(settings) {
-            this.settings = this.fn.extend(default_settings, settings);
+            this.settings = this.fn.extend({}, default_settings, settings);
 
+            if (!settings.startup) {
+                return false;
+            }
             return this.startModule(settings.startup);
         },
-        debug: function(on) {
-            if (typeof on === 'undefined') {
-                this.debug = !this.debug;
-                return;
-            }
-
-            this.debug = on ? true : false;
-        },
-        createModule: function(moduleID, creator) {
-            moduleData[moduleID] = {
+        registerModule: function(moduleID, creator) {
+            this.modules[moduleID] = {
                 create: creator,
                 config: this.config[moduleID],
                 instance: null
             };
         },
-        getModule: function(moduleID) {
-            var mod = moduleData[moduleID];
-            if (!mod) {
-                return false;
-
-            }
-            return mod.create(this, mod.config);
+        createModule: function() {
+            console.log('createModule is deprecated, use registerModule');
         },
         startModule: function(moduleID) {
-            var mod = moduleData[moduleID];
+            var mod = this.modules[moduleID];
 
             if (!mod) {
                 return false;
             }
 
-            mod.instance = this.getModule(moduleID);
+            var temp = mod.create(this, mod.config);
+            mod.instance = this.factories.module(temp);
 
-            if (!mod.instance.properties) {
-                // Modules do not have to contain a properties object, but the framework will create one
-                mod.instance.properties = {
-                    id: moduleID
-                };
+            mod = mod.instance;
+
+            if (mod.start) {
+                mod.start();
             }
 
-            // Modules do not require an initializing function, use it if exists
-            if (mod.instance.initialize) {
-                mod.instance.initialize();
+            if (mod.listeners) {
+                this.registerEvents(mod.listeners, moduleID);
             }
 
-            if (mod.instance.properties.listeners) {
-                this.registerEvents(mod.instance.properties.listeners, moduleID);
-            }
-
-            return mod.instance;
+            return mod;
         },
         /**
          * Starts multiple modules
@@ -83,27 +66,28 @@ var dmf = function() {
             modules.forEach(this.startModule);
         },
         stopModule: function(moduleID) {
-            var data = moduleData[moduleID];
+            var mod = this.modules[moduleID];
 
-            if (!data) {
+            if (!mod) {
                 //module does not exist
                 return false;
-            } else if (!data.instance) {
+            } else if (!mod.instance) {
                 //module has not been started
                 return false;
             }
 
-            if (data.instance.properties.listeners) {
-                this.removeEvents(Object.keys(data.instance.properties.listeners), moduleID);
+            mod = mod.instance;
+
+            if (mod.listeners) {
+                this.deregisterEvents(mod.listeners, moduleID);
             }
 
             // Modules do not require a destroy function, use it if exists
-            if (data.instance.destroy && typeof data.instance.destroy === 'function') {
-                data.instance.destroy();
+            if (mod.stop) {
+                mod.stop();
             }
 
-            data.instance = null;
-            delete data.instance;
+            delete this.modules[moduleID].instance;
 
             return true;
         },
@@ -129,6 +113,14 @@ var dmf = function() {
                 this.events[eventKey][moduleId] = evts[eventKey];
             }
 
+        },
+        /**
+         * Unsubscribes a single module from a set of events
+         */
+        deregisterEvents: function(evts, mod) {
+            for (var event in evts) {
+                delete this.events[event][mod];
+            }
         },
         /**
          * Sends events to each listening module
@@ -159,24 +151,6 @@ var dmf = function() {
             for (moduleId in bindings) {
                 bindings[moduleId](event.data);
             }
-        },
-        /**
-         * Unsubscribes a single module from a set of events
-         */
-        removeEvents: function(evts, mod) {
-            // Should be a named function, but mod would not be available
-            evts.forEach(function(event, index, array) {
-                delete dmf.events[event][mod];
-            });
-        },
-
-        log: function(severity, messages) {
-            console.warn('dmf.log is deprectated, use logging module');
-
-            this.notify('log', {
-                'severity': severity,
-                'messages': messages
-            });
-        },
+        }
     };
 }();
