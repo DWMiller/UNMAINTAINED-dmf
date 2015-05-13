@@ -3,7 +3,9 @@ default:
   - 'concurrent:second'
   - 'concurrent:third'
   - 'concurrent:fourth'
+  - 'concurrent:last'
 dev:
   - 'concurrent:first'
   - 'concurrent:second'
-  - 'concurrent:fourth'
+  - 'concurrent:third'
+  - 'concurrent:last'

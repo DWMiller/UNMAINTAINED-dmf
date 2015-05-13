@@ -1,6 +1,4 @@
-'use strict';
-
-var dmf = (function () {
+var dmf = function() {
     'use strict';
 
     var default_settings = {
@@ -10,7 +8,7 @@ var dmf = (function () {
     return {
         config: {},
         data: {},
-        factories: null, // populated by factories.js
+        factories: null, // populated by factories.js 
         fn: null, // populated by functions.js
         events: {}, // used to map framework event-module bindings
         modules: {},
@@ -19,7 +17,7 @@ var dmf = (function () {
          * Triggers starter logic for all game modules
          * @return {[type]} [description]
          */
-        activate: function activate(settings) {
+        activate: function(settings) {
             this.settings = this.fn.extend({}, default_settings, settings);
 
             if (!settings.startup) {
@@ -27,17 +25,17 @@ var dmf = (function () {
             }
             return this.startModule(settings.startup);
         },
-        registerModule: function registerModule(moduleID, creator) {
+        registerModule: function(moduleID, creator) {
             this.modules[moduleID] = {
                 create: creator,
                 config: this.config[moduleID],
                 instance: null
             };
         },
-        createModule: function createModule() {
+        createModule: function() {
             console.log('createModule is deprecated, use registerModule');
         },
-        startModule: function startModule(moduleID) {
+        startModule: function(moduleID) {
             var mod = this.modules[moduleID];
 
             if (!mod) {
@@ -64,10 +62,10 @@ var dmf = (function () {
          * @param  {String[]} modules An array of the module ids to start
          * @return {[type]}         [description]
          */
-        startModules: function startModules(modules) {
+        startModules: function(modules) {
             modules.forEach(this.startModule);
         },
-        stopModule: function stopModule(moduleID) {
+        stopModule: function(moduleID) {
             var mod = this.modules[moduleID];
 
             if (!mod) {
@@ -93,7 +91,7 @@ var dmf = (function () {
 
             return true;
         },
-        stopModules: function stopModules(modules) {
+        stopModules: function(modules) {
             modules.forEach(this.stopModule, this);
         },
         /**
@@ -102,8 +100,8 @@ var dmf = (function () {
          * @param  {string} mod  [description]
          * @return {[type]}      [description]
          */
-        registerEvents: function registerEvents(evts, moduleId) {
-            // Currently only called via startModule, so modules existance
+        registerEvents: function(evts, moduleId) {
+            // Currently only called via startModule, so modules existance 
             // does not need to be validated here
 
             for (var eventKey in evts) {
@@ -114,11 +112,12 @@ var dmf = (function () {
 
                 this.events[eventKey][moduleId] = evts[eventKey];
             }
+
         },
         /**
          * Unsubscribes a single module from a set of events
          */
-        deregisterEvents: function deregisterEvents(evts, mod) {
+        deregisterEvents: function(evts, mod) {
             for (var event in evts) {
                 delete this.events[event][mod];
             }
@@ -126,7 +125,7 @@ var dmf = (function () {
         /**
          * Sends events to each listening module
          */
-        notify: function notify(event) {
+        notify: function(event) {
 
             if (arguments.length === 2) {
                 // Allows seperate name and data parameter, useful for primitive types data
@@ -154,15 +153,15 @@ var dmf = (function () {
             }
         }
     };
-})();
+}();
 
-(function () {
+(function() {
     'use strict';
     dmf.fn = {
-        is_arr: function is_arr(obj) {
+        is_arr: function(obj) {
             return obj.constructor === Array;
         },
-        extend: function extend() {
+        extend: function() {
             for (var i = 1; i < arguments.length; i++) {
                 for (var key in arguments[i]) {
                     if (arguments[i].hasOwnProperty(key)) {
@@ -175,10 +174,10 @@ var dmf = (function () {
     };
 })();
 
-(function (c) {
+(function(c) {
     'use strict';
     c.factories = {
-        module: function module(newModule) {
+        module: function(newModule) {
 
             var defaults = {
                 start: false,
@@ -190,4 +189,3 @@ var dmf = (function () {
         }
     };
 })(dmf);
-//# sourceMappingURL=dmf.js.map
