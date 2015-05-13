@@ -1,10 +1,10 @@
 module.exports = {
     options: {
-        sourceMap: true
+        sourceMap: false
     },
     dist: {
         files: {
-            "dist/dmf.js": "dist/dmf_es6.js"
+            "dist/dmf.js": "dist/dmf.js"
         }
     }
 }
