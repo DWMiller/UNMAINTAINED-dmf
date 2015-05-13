@@ -3,5 +3,7 @@ default:
   - 'concurrent:second'
   - 'concurrent:third'
   - 'concurrent:fourth'
-test:
+dev:
   - 'concurrent:first'
+  - 'concurrent:second'
+  - 'concurrent:fourth'

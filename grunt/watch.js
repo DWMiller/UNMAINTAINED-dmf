@@ -2,7 +2,7 @@ module.exports = {
 	js: {
 		files: ['js/**/*'],
 		// files: ['dmf.js'],
-		tasks: ['concurrent']
+		tasks: ['dev']
 	},
 	grunt: {
 		files: ['grunt/**/*'],
