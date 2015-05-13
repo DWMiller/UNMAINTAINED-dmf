@@ -80,15 +80,7 @@ var dmf = function() {
          * @return {[type]}         [description]
          */
         startModules: function(modules) {
-            modules.forEach(this.startModule, this);
-        },
-        startAllModules: function() {
-            var moduleID;
-            for (moduleID in moduleData) {
-                if (moduleData.hasOwnProperty(moduleID)) {
-                    this.startModule(moduleID);
-                }
-            }
+            modules.forEach(this.startModule);
         },
         stopModule: function(moduleID) {
             var data = moduleData[moduleID];
@@ -117,14 +109,6 @@ var dmf = function() {
         },
         stopModules: function(modules) {
             modules.forEach(this.stopModule, this);
-        },
-        stopAllModules: function() {
-            var moduleID;
-            for (moduleID in moduleData) {
-                if (moduleData.hasOwnProperty(moduleID)) {
-                    this.stopModule(moduleID);
-                }
-            }
         },
         /**
          * Binds framework events to a module
