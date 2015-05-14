@@ -20,17 +20,17 @@ var dmf = (function () {
          * @return {[type]} [description]
          */
         activate: function activate(settings) {
-            this.settings = this.fn.extend({}, default_settings, settings);
+            dmf.settings = dmf.fn.extend({}, default_settings, settings);
 
             if (!settings.startup) {
                 return false;
             }
-            return this.startModule(settings.startup);
+            return dmf.startModule(settings.startup);
         },
         registerModule: function registerModule(moduleID, creator) {
-            this.modules[moduleID] = {
+            dmf.modules[moduleID] = {
                 create: creator,
-                config: this.config[moduleID],
+                config: dmf.config[moduleID],
                 instance: null
             };
         },
@@ -38,14 +38,14 @@ var dmf = (function () {
             console.log('createModule is deprecated, use registerModule');
         },
         startModule: function startModule(moduleID) {
-            var mod = this.modules[moduleID];
+            var mod = dmf.modules[moduleID];
 
             if (!mod) {
                 return false;
             }
 
-            var temp = mod.create(this, mod.config);
-            mod.instance = this.factories.module(temp);
+            var temp = mod.create(dmf, mod.config);
+            mod.instance = dmf.factories.module(temp);
 
             mod = mod.instance;
 
@@ -54,7 +54,7 @@ var dmf = (function () {
             }
 
             if (mod.listeners) {
-                this.registerEvents(mod.listeners, moduleID);
+                dmf.registerEvents(mod.listeners, moduleID);
             }
 
             return mod;
@@ -65,10 +65,10 @@ var dmf = (function () {
          * @return {[type]}         [description]
          */
         startModules: function startModules(modules) {
-            modules.forEach(this.startModule);
+            modules.forEach(dmf.startModule);
         },
         stopModule: function stopModule(moduleID) {
-            var mod = this.modules[moduleID];
+            var mod = dmf.modules[moduleID];
 
             if (!mod) {
                 //module does not exist
@@ -81,7 +81,7 @@ var dmf = (function () {
             mod = mod.instance;
 
             if (mod.listeners) {
-                this.deregisterEvents(mod.listeners, moduleID);
+                dmf.deregisterEvents(mod.listeners, moduleID);
             }
 
             // Modules do not require a destroy function, use it if exists
@@ -89,12 +89,12 @@ var dmf = (function () {
                 mod.stop();
             }
 
-            delete this.modules[moduleID].instance;
+            delete dmf.modules[moduleID].instance;
 
             return true;
         },
         stopModules: function stopModules(modules) {
-            modules.forEach(this.stopModule, this);
+            modules.forEach(dmf.stopModule, dmf);
         },
         /**
          * Binds framework events to a module
@@ -108,11 +108,11 @@ var dmf = (function () {
 
             for (var eventKey in evts) {
                 // Add event to event list if not yet added
-                if (!this.events[eventKey]) {
-                    this.events[eventKey] = {};
+                if (!dmf.events[eventKey]) {
+                    dmf.events[eventKey] = {};
                 }
 
-                this.events[eventKey][moduleId] = evts[eventKey];
+                dmf.events[eventKey][moduleId] = evts[eventKey];
             }
         },
         /**
@@ -120,7 +120,7 @@ var dmf = (function () {
          */
         deregisterEvents: function deregisterEvents(evts, mod) {
             for (var event in evts) {
-                delete this.events[event][mod];
+                delete dmf.events[event][mod];
             }
         },
         /**
@@ -142,7 +142,7 @@ var dmf = (function () {
                 };
             }
 
-            var bindings = this.events[event.type];
+            var bindings = dmf.events[event.type];
 
             if (!bindings) {
                 return;
@@ -190,4 +190,3 @@ var dmf = (function () {
         }
     };
 })(dmf);
-//# sourceMappingURL=dmf.js.map
