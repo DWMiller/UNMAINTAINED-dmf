@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     dmf.fn = {
-        is_arr: function(obj) {
-            return obj.constructor === Array;
+        is: function(test, obj) {
+            return ({}.toString.call(collection) === test);
         },
         extend: function() {
             for (var i = 1; i < arguments.length; i++) {

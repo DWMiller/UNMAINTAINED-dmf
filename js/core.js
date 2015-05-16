@@ -128,7 +128,7 @@ var dmf = function() {
         notify: function(event) {
 
             if (arguments.length === 2) {
-                // Allows seperate name and data parameter, useful for primitive types data
+                // Allows seperate name and data parameter
                 event = {
                     type: arguments[0],
                     data: arguments[1]
