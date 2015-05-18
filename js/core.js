@@ -130,7 +130,7 @@ var dmf = function() {
         /**
          * Sends events to each listening module
          */
-        dmf.announce: function dmf.announce(event) {
+        announce: function announce(event) {
 
             if (arguments.length === 2) {
                 // Allows seperate name and data parameter

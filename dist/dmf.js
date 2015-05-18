@@ -35,7 +35,7 @@ var dmf = (function () {
             };
         },
         createModule: function createModule() {
-            announce('log', {
+            dmf.announce('log', {
                 mgs: ['createModule is deprecated, use registerModule'],
                 severity: 2
             });
@@ -60,7 +60,7 @@ var dmf = (function () {
                 dmf.registerEvents(mod.listeners, moduleID);
             }
 
-            announce('module-started', moduleID);
+            dmf.announce('module-started', moduleID);
             return mod;
         },
         /**
@@ -95,7 +95,7 @@ var dmf = (function () {
 
             delete dmf.modules[moduleID].instance;
 
-            announce('module-stopped', moduleID);
+            dmf.announce('module-stopped', moduleID);
 
             return true;
         },
@@ -160,9 +160,9 @@ var dmf = (function () {
             }
         },
         notify: function notify(event) {
-            announce(event);
-            announce('log', {
-                mgs: ['Notify is deprecated, use announce'],
+            dmf.announce(event);
+            dmf.announce('log', {
+                mgs: ['Notify is deprecated, use dmf.announce'],
                 severity: 2
             });
         }
