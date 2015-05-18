@@ -51,6 +51,7 @@ var dmf = function() {
             mod = mod.instance;
 
             if (mod.start) {
+                dmf.announce('module-started', moduleID);
                 mod.start();
             }
 
@@ -58,7 +59,7 @@ var dmf = function() {
                 dmf.registerEvents(mod.listeners, moduleID);
             }
 
-            dmf.announce('module-started', moduleID);
+            
             return mod;
         },
         /**
@@ -88,12 +89,11 @@ var dmf = function() {
 
             // Modules do not require a destroy function, use it if exists
             if (mod.stop) {
+                dmf.announce('module-stopped', moduleID);
                 mod.stop();
             }
 
             delete dmf.modules[moduleID].instance;
-
-            dmf.announce('module-stopped', moduleID);
 
             return true;
         },
