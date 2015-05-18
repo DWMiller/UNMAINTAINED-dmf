@@ -160,7 +160,7 @@ var dmf = function() {
         notify: function notify(event) {
             dmf.announce.apply(this, arguments);
             dmf.announce('log', {
-                mgs: ['Notify is deprecated, use dmf.announce'],
+                msgs: ['Notify is deprecated, use dmf.announce'],
                 severity: 2
             });
         }
