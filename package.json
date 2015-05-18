@@ -1,6 +1,6 @@
 {
   "name": "dmf",
-  "version": "4.0.41",
+  "version": "4.0.42",
   "author": {
     "name": "David Miller",
     "email": "david.miller8@mohawkcollege.ca"
@@ -21,9 +21,8 @@
     "grunt-version": "^0.3.1",
     "grunt-write-bower-json": "0.0.1",
     "jshint-stylish": "^0.4.0",
-    "load-grunt-config": "^0.12.0"
+    "load-grunt-config": "^0.12.0",
+   "time-grunt": "^0.3.1"    
   },
-  "dependencies": {
-    "time-grunt": "^0.3.1"
-  }
+  "dependencies": {}
 }
