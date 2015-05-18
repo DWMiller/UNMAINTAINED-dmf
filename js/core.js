@@ -17,7 +17,7 @@ var dmf = function() {
          * Triggers starter logic for all game modules
          * @return {[type]} [description]
          */
-        activate: function(settings) {
+        activate: function activate(settings) {
             dmf.settings = dmf.fn.extend({}, default_settings, settings);
 
             if (!settings.startup) {
@@ -25,17 +25,20 @@ var dmf = function() {
             }
             return dmf.startModule(settings.startup);
         },
-        registerModule: function(moduleID, creator) {
+        registerModule: function registerModule(moduleID, creator) {
             dmf.modules[moduleID] = {
                 create: creator,
                 config: dmf.config[moduleID],
                 instance: null
             };
         },
-        createModule: function() {
-            console.log('createModule is deprecated, use registerModule');
+        createModule: function createModule() {
+            announce('log', {
+                mgs: ['createModule is deprecated, use registerModule'],
+                severity: 2
+            });
         },
-        startModule: function(moduleID) {
+        startModule: function startModule(moduleID) {
             var mod = dmf.modules[moduleID];
 
             if (!mod) {
@@ -55,6 +58,7 @@ var dmf = function() {
                 dmf.registerEvents(mod.listeners, moduleID);
             }
 
+            announce('module-started', moduleID);
             return mod;
         },
         /**
@@ -62,10 +66,10 @@ var dmf = function() {
          * @param  {String[]} modules An array of the module ids to start
          * @return {[type]}         [description]
          */
-        startModules: function(modules) {
+        startModules: function startModules(modules) {
             modules.forEach(dmf.startModule);
         },
-        stopModule: function(moduleID) {
+        stopModule: function stopModule(moduleID) {
             var mod = dmf.modules[moduleID];
 
             if (!mod) {
@@ -89,9 +93,11 @@ var dmf = function() {
 
             delete dmf.modules[moduleID].instance;
 
+            announce('module-stopped', moduleID);
+
             return true;
         },
-        stopModules: function(modules) {
+        stopModules: function stopModules(modules) {
             modules.forEach(dmf.stopModule, dmf);
         },
         /**
@@ -100,7 +106,7 @@ var dmf = function() {
          * @param  {string} mod  [description]
          * @return {[type]}      [description]
          */
-        registerEvents: function(evts, moduleId) {
+        registerEvents: function registerEvents(evts, moduleId) {
             // Currently only called via startModule, so modules existance 
             // does not need to be validated here
 
@@ -112,12 +118,11 @@ var dmf = function() {
 
                 dmf.events[eventKey][moduleId] = evts[eventKey];
             }
-
         },
         /**
          * Unsubscribes a single module from a set of events
          */
-        deregisterEvents: function(evts, mod) {
+        deregisterEvents: function deregisterEvents(evts, mod) {
             for (var event in evts) {
                 delete dmf.events[event][mod];
             }
@@ -125,7 +130,7 @@ var dmf = function() {
         /**
          * Sends events to each listening module
          */
-        notify: function(event) {
+        announce: function announce(event) {
 
             if (arguments.length === 2) {
                 // Allows seperate name and data parameter
@@ -151,6 +156,13 @@ var dmf = function() {
             for (moduleId in bindings) {
                 bindings[moduleId](event.data);
             }
+        },
+        notify: function notify(event) {
+            announce(event);
+            announce('log', {
+                mgs: ['Notify is deprecated, use announce'],
+                severity: 2
+            });
         }
     };
 }();

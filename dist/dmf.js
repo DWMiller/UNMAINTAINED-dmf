@@ -35,7 +35,10 @@ var dmf = (function () {
             };
         },
         createModule: function createModule() {
-            console.log('createModule is deprecated, use registerModule');
+            announce('log', {
+                mgs: ['createModule is deprecated, use registerModule'],
+                severity: 2
+            });
         },
         startModule: function startModule(moduleID) {
             var mod = dmf.modules[moduleID];
@@ -57,6 +60,7 @@ var dmf = (function () {
                 dmf.registerEvents(mod.listeners, moduleID);
             }
 
+            announce('module-started', moduleID);
             return mod;
         },
         /**
@@ -90,6 +94,8 @@ var dmf = (function () {
             }
 
             delete dmf.modules[moduleID].instance;
+
+            announce('module-stopped', moduleID);
 
             return true;
         },
@@ -126,10 +132,10 @@ var dmf = (function () {
         /**
          * Sends events to each listening module
          */
-        notify: function notify(event) {
+        announce: function announce(event) {
 
             if (arguments.length === 2) {
-                // Allows seperate name and data parameter, useful for primitive types data
+                // Allows seperate name and data parameter
                 event = {
                     type: arguments[0],
                     data: arguments[1]
@@ -152,6 +158,13 @@ var dmf = (function () {
             for (moduleId in bindings) {
                 bindings[moduleId](event.data);
             }
+        },
+        notify: function notify(event) {
+            announce(event);
+            announce('log', {
+                mgs: ['Notify is deprecated, use announce'],
+                severity: 2
+            });
         }
     };
 })();
@@ -159,8 +172,8 @@ var dmf = (function () {
 (function () {
     'use strict';
     dmf.fn = {
-        is_arr: function is_arr(obj) {
-            return obj.constructor === Array;
+        is: function is(test, obj) {
+            return ({}).toString.call(collection) === test;
         },
         extend: function extend() {
             for (var i = 1; i < arguments.length; i++) {
