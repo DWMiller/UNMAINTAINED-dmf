@@ -158,8 +158,8 @@ var dmf = function() {
             }
         },
         notify: function notify(event) {
-            dmf.announce(event);
-            dmf.announce('log', {
+            announce(event);
+            announce('log', {
                 mgs: ['Notify is deprecated, use announce'],
                 severity: 2
             });
