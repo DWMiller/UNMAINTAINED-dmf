@@ -1,6 +1,6 @@
 {
   "name": "dmf",
-  "version": "4.0.42",
+  "version": "4.0.43",
   "main": "dist/dmf.js",
   "ignore": [
     "app",

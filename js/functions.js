@@ -2,7 +2,7 @@
     'use strict';
     dmf.fn = {
         is: function(test, obj) {
-            return ({}.toString.call(collection) === test);
+            return ({}.toString.call(obj) === test);
         },
         extend: function() {
             for (var i = 1; i < arguments.length; i++) {

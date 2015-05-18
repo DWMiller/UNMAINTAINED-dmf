@@ -172,7 +172,7 @@ var dmf = (function () {
     'use strict';
     dmf.fn = {
         is: function is(test, obj) {
-            return ({}).toString.call(collection) === test;
+            return ({}).toString.call(obj) === test;
         },
         extend: function extend() {
             for (var i = 1; i < arguments.length; i++) {
