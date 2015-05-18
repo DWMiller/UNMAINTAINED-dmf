@@ -59,7 +59,7 @@ var dmf = function() {
                 dmf.registerEvents(mod.listeners, moduleID);
             }
 
-            
+
             return mod;
         },
         /**
@@ -158,7 +158,7 @@ var dmf = function() {
             }
         },
         notify: function notify(event) {
-            dmf.announce(event);
+            dmf.announce.apply(this, arguments);
             dmf.announce('log', {
                 mgs: ['Notify is deprecated, use dmf.announce'],
                 severity: 2
