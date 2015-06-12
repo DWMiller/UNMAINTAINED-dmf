@@ -50,8 +50,10 @@ var dmf = function() {
 
             mod = mod.instance;
 
+            dmf.announce('module instance created', moduleID);
+
             if (mod.start) {
-                dmf.announce('module-started', moduleID);
+                //optional start method
                 mod.start();
             }
 
@@ -87,9 +89,10 @@ var dmf = function() {
                 dmf.deregisterEvents(mod.listeners, moduleID);
             }
 
-            // Modules do not require a destroy function, use it if exists
+            dmf.announce('module instance destroyed', moduleID);
+
             if (mod.stop) {
-                dmf.announce('module-stopped', moduleID);
+                // Modules do not require a destroy function, use it if exists
                 mod.stop();
             }
 
